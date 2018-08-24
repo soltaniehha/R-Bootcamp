@@ -36,4 +36,4 @@ vignettes/*.pdf
 rsconnect/
 
 # Jupyter notebook
-**/.ipynb_checkpoints/*
+.ipynb_checkpoints
