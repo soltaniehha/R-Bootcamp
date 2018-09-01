@@ -18,5 +18,6 @@ This repository consists of notebooks located in notebooks directory, equivalent
 Another nice feature that Binder provides is RStudio. To start a new RStudio session through binder click on *RStudio Session* under *New*.
 
 ### Credits
-* In the notebooks I have used a modified version of the content and several examples from [R for Data Science](https://www.amazon.com/Data-Science-Transform-Visualize-Model/dp/1491910399) by Hadley Wickham and Garrett Grolemund. This book is under the [Creative Commons Attribution-NonCommercial-NoDerivs 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/us/) License.
-* [Understanding Different Vvisualization Layers of ggplot](https://skillgaze.com/2017/10/31/understanding-different-visualization-layers-of-ggplot/)
+* In the notebooks I have used a modified version of the content and several examples from [R for Data Science](https://www.amazon.com/Data-Science-Transform-Visualize-Model/dp/1491910399) by Hadley Wickham and Garrett Grolemund. The book is under the [Creative Commons Attribution-NonCommercial-NoDerivs 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/us/) License.
+* [Advanced R (Chapman & Hall/CRC The R Series)](https://www.amazon.com/dp/1466586966/ref=cm_sw_su_dp?tag=devtools-20) by Hadley Wickham
+* [Understanding Different Visualization Layers of ggplot](https://skillgaze.com/2017/10/31/understanding-different-visualization-layers-of-ggplot/)
