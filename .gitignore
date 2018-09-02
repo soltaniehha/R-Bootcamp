@@ -39,3 +39,4 @@ rsconnect/
 
 # Jupyter notebook
 .ipynb_checkpoints
+.Rproj.user
