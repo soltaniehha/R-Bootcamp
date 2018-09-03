@@ -40,3 +40,6 @@ rsconnect/
 # Jupyter notebook
 .ipynb_checkpoints
 .Rproj.user
+
+# Temporary files created in the course
+tmp/**
