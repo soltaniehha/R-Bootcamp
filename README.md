@@ -19,6 +19,66 @@ This repository consists of notebooks located in notebooks directory, equivalent
 
 Another nice feature that Binder provides is RStudio. To start a new RStudio session through binder click on *RStudio Session* under *New*.
 
+## R Bootcamp - Notebook Map
+
+**01 Setup**
+* Textbook and credits
+* Downloading course material
+* Installations
+* Binder
+* Jupyter
+
+**02 Data-Visualization**
+* Overview of `ggplot2`
+* Scatter plots
+* Histograms
+* Bar plots
+* Box plots
+* Facets
+* Themes
+
+**03 Coding-Basics**
+* Vectors
+* Lists
+* Matrices
+* Data frames
+* Tibbles
+
+**04 Functions-and-Conditionals**
+
+**05 Iteration**
+
+**06 Workflow**
+* Common conventions
+* Scripts
+* Projects
+
+**07 Data-Transformation**
+* Overview of `dplyr`
+* Filter rows with `filter()`
+* Arrange rows with `arrange()`
+* Select columns with `select()`
+* Add new variables with `mutate()`
+* Grouped summaries with `summarise()`
+
+**08 Data-Manipulation**
+* Tidy data with `tidyr`
+* Relational Data with `dplyr`
+* Strings with `stringr`
+* Factors with `forcats`
+* Dates and Time with `lubridate`
+* Pipes with `magrittr`
+
+**09 Data-Import-Export**
+
+**10 Exploratory-Data-Analysis**
+
+**11 RMarkdown**
+
+**12 Interactive-Visualization-with-`plotly`**
+
+**Glossary**
+
 ### Credits
 * In the notebooks I have used a modified version of the content and several examples from [R for Data Science](https://www.amazon.com/Data-Science-Transform-Visualize-Model/dp/1491910399) by Hadley Wickham and Garrett Grolemund. The book is under the [Creative Commons Attribution-NonCommercial-NoDerivs 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/us/) License.
 * [Advanced R (Chapman & Hall/CRC The R Series)](https://www.amazon.com/dp/1466586966/ref=cm_sw_su_dp?tag=devtools-20) by Hadley Wickham
