@@ -21,14 +21,14 @@ Another nice feature that Binder provides is RStudio. To start a new RStudio ses
 
 ## R Bootcamp - Notebook Map
 
-**01 [Setup](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/01-Setup.ipynb)**
+**[01 Setup](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/01-Setup.ipynb)**
 * Textbook and credits
 * Downloading course material
 * Installations
 * Binder
 * Jupyter
 
-**02 Data-Visualization**
+**[02 Data-Visualization](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/02-Data-Visualization.ipynb)**
 * Overview of `ggplot2`
 * Scatter plots
 * Histograms
@@ -37,23 +37,23 @@ Another nice feature that Binder provides is RStudio. To start a new RStudio ses
 * Facets
 * Themes
 
-**03 Coding-Basics**
+**[03 Coding-Basics](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/03-Coding-Basics.ipynb)**
 * Vectors
 * Lists
 * Matrices
 * Data frames
 * Tibbles
 
-**04 Functions-and-Conditionals**
+**[04 Functions-and-Conditionals](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/04-Functions-and-Conditionals.ipynb)**
 
-**05 Iteration**
+**[05 Iteration](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/05-Iteration.ipynb)**
 
-**06 Workflow**
+**[06 Workflow](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/06-Workflow.ipynb)**
 * Common conventions
 * Scripts
 * Projects
 
-**07 Data-Transformation**
+**[07 Data-Transformation](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/07-Data-Transformation.ipynb)**
 * Overview of `dplyr`
 * Filter rows with `filter()`
 * Arrange rows with `arrange()`
@@ -61,7 +61,7 @@ Another nice feature that Binder provides is RStudio. To start a new RStudio ses
 * Add new variables with `mutate()`
 * Grouped summaries with `summarise()`
 
-**08 Data-Manipulation**
+**[08 Data-Manipulation](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/08-Data-Manipulation.ipynb)**
 * Tidy data with `tidyr`
 * Relational Data with `dplyr`
 * Strings with `stringr`
@@ -69,15 +69,15 @@ Another nice feature that Binder provides is RStudio. To start a new RStudio ses
 * Dates and Time with `lubridate`
 * Pipes with `magrittr`
 
-**09 Data-Import-Export**
+**[09 Data-Import-Export](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/09-Data-Import-Export.ipynb)**
 
-**10 Exploratory-Data-Analysis**
+**[10 Exploratory-Data-Analysis](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/10-Exploratory-Data-Analysis.ipynb)**
 
-**11 RMarkdown**
+**[11 RMarkdown](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/11-R-Markdown.ipynb)**
 
-**12 Interactive-Visualization-with-`plotly`**
+**[12 Interactive-Visualization-with-`plotly`](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/12-Interactive-Visualization-with-plotly.ipynb)**
 
-**Glossary**
+**[Glossary](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/Glossary.ipynb)**
 
 ### Credits
 * In the notebooks I have used a modified version of the content and several examples from [R for Data Science](https://www.amazon.com/Data-Science-Transform-Visualize-Model/dp/1491910399) by Hadley Wickham and Garrett Grolemund. The book is under the [Creative Commons Attribution-NonCommercial-NoDerivs 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/us/) License.
