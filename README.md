@@ -21,7 +21,7 @@ Another nice feature that Binder provides is RStudio. To start a new RStudio ses
 
 ## R Bootcamp - Notebook Map
 
-**01 Setup**
+**01 [Setup](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/01-Setup.ipynb)**
 * Textbook and credits
 * Downloading course material
 * Installations
