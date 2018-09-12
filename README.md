@@ -53,7 +53,9 @@ Another nice feature that Binder provides is RStudio. To start a new RStudio ses
 * Scripts
 * Projects
 
-**[07 Data-Transformation](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/07-Data-Transformation.ipynb)**
+**[07 Data-Import-Export](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/07-Data-Import-Export.ipynb)**
+
+**[08 Data-Transformation](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/08-Data-Transformation.ipynb)**
 * Overview of `dplyr`
 * Filter rows with `filter()`
 * Arrange rows with `arrange()`
@@ -61,15 +63,13 @@ Another nice feature that Binder provides is RStudio. To start a new RStudio ses
 * Add new variables with `mutate()`
 * Grouped summaries with `summarise()`
 
-**[08 Data-Manipulation](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/08-Data-Manipulation.ipynb)**
+**[09 Data-Manipulation](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/09-Data-Manipulation.ipynb)**
 * Tidy data with `tidyr`
 * Relational Data with `dplyr`
 * Strings with `stringr`
 * Factors with `forcats`
 * Dates and Time with `lubridate`
 * Pipes with `magrittr`
-
-**[09 Data-Import-Export](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/09-Data-Import-Export.ipynb)**
 
 **[10 Exploratory-Data-Analysis](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/10-Exploratory-Data-Analysis.ipynb)**
 
