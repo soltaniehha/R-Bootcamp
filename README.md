@@ -11,13 +11,15 @@ Typically, we use a secondary environment to write R code. There are various opt
 
 I will present the material using Jupyter notebooks. Notebooks allow one to create and share documents that contain live code, equations, visualizations and narrative text. Later on this page you will learn how to run these notebooks, but the primary goal of this course is to learn programming with R and the powerful functionalities of RStudio.
 
-This repository consists of notebooks located in notebooks directory, equivalent html files in html directory, and cheatsheets.
+This repository consists of notebooks located in **notebooks** directory, equivalent html files in **html** directory, and cheatsheets in **cheatsheets** directory.
 
 **Binder** makes it simple to generate reproducible computing environments from a Git repository. Binder uses the BinderHub technology to generate a Docker image from this repository with all the required libraries pre-installed. All the notebooks in the repository will be accessible. You can spin off your own Binder container by going to https://mybinder.org/v2/gh/soltaniehha/R-Bootcamp/master or by clicking on the binder logo below:
 
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/soltaniehha/R-Bootcamp/master)
 
 Another nice feature that Binder provides is RStudio. To start a new RStudio session through binder click on *RStudio Session* under *New*.
+
+Here is how the notebooks are organized:
 
 ## R Bootcamp - Notebook Map
 
