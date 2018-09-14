@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>04-Functions-and-Conditionals</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>05-Iteration</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11776,15 +11776,19 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a class="anchor" id="jump_to_top"></a></p>
-<h1 id="Function-and-Conditionals">Function and Conditionals<a class="anchor-link" href="#Function-and-Conditionals">&#182;</a></h1><hr>
+<h1 id="Iteration">Iteration<a class="anchor-link" href="#Iteration">&#182;</a></h1><hr>
 <h3 id="Table-of-Contents">Table of Contents<a class="anchor-link" href="#Table-of-Contents">&#182;</a></h3><ul>
-<li><a href="#Function">Functions</a></li>
-<li><a href="#Conditionals">Conditionals</a></li>
-<li><a href="#cut">cut()</a></li>
-<li><a href="#stop">stop()</a></li>
-<li><a href="#return">return()</a></li>
-<li><a href="#ifelse">ifelse()</a></li>
+<li><a href="#loops">For loops</a></li>
+<li><a href="#while">while loops</a></li>
+<li><a href="#purr">iteration with purrr package</a><ul>
+<li><a href="#map">The map functions</a></li>
+<li><a href="#map2">map2()</a></li>
+<li><a href="#pmap">pmap</a></li>
 </ul>
+</li>
+</ul>
+<p><a class="anchor" id="loops"></a></p>
+<p>In the previous notebook we saw how we can use functions to reduce duplication in our code. Another great tool for reducing duplication is <strong>iteration</strong>, which helps you when you need to do the same thing to multiple inputs: repeating the same operation on different columns, or on different datasets.</p>
 
 </div>
 </div>
@@ -11794,9 +11798,11 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># Loading packages</span>
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># Attaching libraries</span>
 <span class="kn">library</span><span class="p">(</span>tidyverse<span class="p">)</span>
-<span class="kn">library</span><span class="p">(</span>lubridate<span class="p">)</span>  <span class="c1"># lubridate is not part of core tidyverse, so has to be loaded separately.</span>
+
+<span class="c1"># install.packages(&#39;nycflights13&#39;)  </span>
+<span class="kn">library</span><span class="p">(</span>nycflights13<span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11821,13 +11827,6 @@ div#notebook {
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
-
-Attaching package: ‘lubridate’
-
-The following object is masked from ‘package:base’:
-
-    date
-
 </pre>
 </div>
 </div>
@@ -11840,23 +11839,8 @@ The following object is masked from ‘package:base’:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a class="anchor" id="Function"></a></p>
-<h2 id="Functions">Functions<a class="anchor-link" href="#Functions">&#182;</a></h2><p>One of the best ways to improve your code readability is to write functions. Functions allow you to automate common tasks in a more powerful and general way than copy-and-pasting. Writing a function has three big advantages over using copy-and-paste:</p>
-<ol>
-<li><p>You can give a function an evocative name that makes your code easier to understand.</p>
-</li>
-<li><p>As requirements change, you only need to update code in one place, instead of many.</p>
-</li>
-<li><p>You eliminate the chance of making incidental mistakes when you copy and paste (i.e. updating a variable name in one place, but not in another).</p>
-</li>
-</ol>
-<p>General template of a function:</p>
-<blockquote><p><code>MyFunction &lt;- function(arg1, arg2, ... ){
-  statements
-  return(object)
-}</code></p>
-</blockquote>
-<p>Example: The following function adds a and b and return it:</p>
+<p><a class="anchor" id="loops"></a></p>
+<h2 id="For-loops">For loops<a class="anchor-link" href="#For-loops">&#182;</a></h2><p>Imagine we have this simple data frame comprised of some random numbers:</p>
 
 </div>
 </div>
@@ -11866,8 +11850,320 @@ The following object is masked from ‘package:base’:
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>AddFunction <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>a<span class="p">,</span> b<span class="p">)</span> <span class="p">{</span>
-    <span class="kr">return</span><span class="p">(</span>a <span class="o">+</span> b<span class="p">)</span>
+<div class=" highlight hl-r"><pre><span></span>df <span class="o">&lt;-</span> tibble<span class="p">(</span>
+  a <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  b <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  <span class="kt">c</span> <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  d <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">)</span>
+<span class="p">)</span>
+df
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<table>
+<thead><tr><th scope=col>a</th><th scope=col>b</th><th scope=col>c</th><th scope=col>d</th></tr></thead>
+<tbody>
+	<tr><td>-2.44778641 </td><td> 0.2742707  </td><td> 3.173161764</td><td> 0.6429304  </td></tr>
+	<tr><td> 1.22550298 </td><td> 0.5997888  </td><td> 0.166420797</td><td>-1.2324496  </td></tr>
+	<tr><td>-0.79494404 </td><td>-0.4500257  </td><td> 0.331656586</td><td>-1.6720384  </td></tr>
+	<tr><td>-0.52911698 </td><td> 0.4191066  </td><td>-0.389523249</td><td> 1.4370108  </td></tr>
+	<tr><td>-0.21500050 </td><td> 0.1727371  </td><td>-1.649719824</td><td>-0.4529674  </td></tr>
+	<tr><td> 0.03500575 </td><td>-0.6950085  </td><td> 0.434642459</td><td> 0.8060227  </td></tr>
+	<tr><td> 1.09935900 </td><td> 1.6846784  </td><td>-0.002950232</td><td>-0.1198143  </td></tr>
+	<tr><td>-0.78294162 </td><td> 0.2770025  </td><td> 1.696926012</td><td>-0.6933271  </td></tr>
+	<tr><td>-1.30525469 </td><td> 0.9257105  </td><td> 0.833516797</td><td>-0.3819635  </td></tr>
+	<tr><td> 0.14797624 </td><td>-0.7796936  </td><td> 2.036830978</td><td> 1.9090268  </td></tr>
+</tbody>
+</table>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We want to compute the median of each column. You could do with copy-and-paste:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>median<span class="p">(</span>df<span class="o">$</span>a<span class="p">)</span>
+median<span class="p">(</span>df<span class="o">$</span>b<span class="p">)</span>
+median<span class="p">(</span>df<span class="o">$</span><span class="kt">c</span><span class="p">)</span>
+median<span class="p">(</span>df<span class="o">$</span>d<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+-0.372058741418796
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+0.275636625128039
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+0.383149522438577
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+-0.250888887312892
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>But that breaks our rule of thumb: never copy and paste more than twice. Instead, we could use a for loop:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="m">1</span><span class="o">:</span><span class="m">4</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kp">print</span><span class="p">(</span><span class="kp">paste0</span><span class="p">(</span><span class="s">&quot;Median for column &quot;</span><span class="p">,</span> <span class="kp">colnames</span><span class="p">(</span>df<span class="p">)[</span>i<span class="p">],</span> <span class="s">&quot;: &quot;</span><span class="p">,</span> median<span class="p">(</span>df<span class="p">[[</span>i<span class="p">]])))</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[1] &#34;Median for column a: -0.372058741418796&#34;
+[1] &#34;Median for column b: 0.275636625128039&#34;
+[1] &#34;Median for column c: 0.383149522438577&#34;
+[1] &#34;Median for column d: -0.250888887312892&#34;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If we would want to use these values again it's a good practice to store them:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>output <span class="o">&lt;-</span> <span class="kt">vector</span><span class="p">(</span><span class="s">&quot;double&quot;</span><span class="p">,</span> <span class="kp">ncol</span><span class="p">(</span>df<span class="p">))</span>  <span class="c1"># 1. output</span>
+<span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="kp">seq_along</span><span class="p">(</span>df<span class="p">))</span> <span class="p">{</span>            <span class="c1"># 2. sequence</span>
+  output<span class="p">[[</span>i<span class="p">]]</span> <span class="o">&lt;-</span> median<span class="p">(</span>df<span class="p">[[</span>i<span class="p">]])</span>      <span class="c1"># 3. body</span>
+<span class="p">}</span>
+output
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<ol class=list-inline>
+	<li>-0.372058741418796</li>
+	<li>0.275636625128039</li>
+	<li>0.383149522438577</li>
+	<li>-0.250888887312892</li>
+</ol>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="kp">seq_along</span><span class="p">(</span>df<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<ol class=list-inline>
+	<li>1</li>
+	<li>2</li>
+	<li>3</li>
+	<li>4</li>
+</ol>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Every for loop has three components:</p>
+<ol>
+<li><strong>Output</strong>: <code>output &lt;- vector("double", length(x))</code>. Before you start the loop, you must always allocate sufficient space for the output to increase efficiency. A general way of creating an empty vector of given length is the <code>vector()</code> function. It has two arguments: the type of the vector ("logical", "integer", "double", "character", etc) and the length of the vector.</li>
+<li><strong>Sequence</strong>: <code>i in seq_along(df)</code>. This determines what to loop over: each run of the for loop will assign <code>i</code> to a different value from <code>seq_along(df)</code>.</li>
+<li><strong>Body</strong>: <code>output[[i]] &lt;- median(df[[i]])</code>. This is the code that does the work. It's run repeatedly, each time with a different value for <code>i</code>. The first iteration will run <code>output[[1]] &lt;- median(df[[1]])</code>, the second will run <code>output[[2]] &lt;- median(df[[2]])</code>, and so on.</li>
+</ol>
+<hr>
+<h3 id="Exercise-1">Exercise 1<a class="anchor-link" href="#Exercise-1">&#182;</a></h3><p>Write for loops to:</p>
+<ol>
+<li>Compute the mean of every column in <code>mtcars</code>.</li>
+<li>Determine the type of each column in <code>nycflights13::flights</code>. (Note: You might need to install nycflights13 package)</li>
+<li>Compute the number of unique values in each column of <code>iris</code>.</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your answer goes here.</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+<h3 id="Exercise-2">Exercise 2<a class="anchor-link" href="#Exercise-2">&#182;</a></h3><p>Eliminate the for loop in each of the following examples by taking advantage of an existing function that works with vectors:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>out <span class="o">&lt;-</span> <span class="s">&quot;&quot;</span>
+<span class="kr">for</span> <span class="p">(</span>x <span class="kr">in</span> <span class="kc">letters</span><span class="p">)</span> <span class="p">{</span>
+  out <span class="o">&lt;-</span> stringr<span class="o">::</span>str_c<span class="p">(</span>out<span class="p">,</span> x<span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 
@@ -11878,10 +12174,404 @@ The following object is masked from ‘package:base’:
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>AddFunction<span class="p">(</span><span class="m">3</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span>
+<div class=" highlight hl-r"><pre><span></span>x <span class="o">&lt;-</span> <span class="kp">sample</span><span class="p">(</span><span class="m">100</span><span class="p">)</span>
+sd <span class="o">&lt;-</span> <span class="m">0</span>
+<span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="kp">seq_along</span><span class="p">(</span>x<span class="p">))</span> <span class="p">{</span>
+  sd <span class="o">&lt;-</span> sd <span class="o">+</span> <span class="p">(</span>x<span class="p">[</span>i<span class="p">]</span> <span class="o">-</span> <span class="kp">mean</span><span class="p">(</span>x<span class="p">))</span> <span class="o">^</span> <span class="m">2</span>
+<span class="p">}</span>
+sd <span class="o">&lt;-</span> <span class="kp">sqrt</span><span class="p">(</span>sd <span class="o">/</span> <span class="p">(</span><span class="kp">length</span><span class="p">(</span>x<span class="p">)</span> <span class="o">-</span> <span class="m">1</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+<h2 id="For-loop-variations">For loop variations<a class="anchor-link" href="#For-loop-variations">&#182;</a></h2><p>There are four variations on the basic theme of the for loop:</p>
+<ol>
+<li>Modifying an existing object</li>
+<li>Looping Patterns</li>
+<li>Unknown output length</li>
+<li>Unknown sequence length, <code>while</code> loops</li>
+</ol>
+<h3 id="1.-Modifying-an-existing-object">1. Modifying an existing object<a class="anchor-link" href="#1.-Modifying-an-existing-object">&#182;</a></h3><p>Sometimes you want to use a for loop to modify an existing object, instead of creating a new one. For example, our code from functions notebook. We wanted to rescale every column in a data frame:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>df <span class="o">&lt;-</span> tibble<span class="p">(</span>
+  a <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  b <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  <span class="kt">c</span> <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  d <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">)</span>
+<span class="p">)</span>
+Rescale <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> <span class="p">{</span>
+  <span class="c1"># Rescales each column to a range from 0 to 1</span>
+  <span class="c1">#</span>
+  <span class="c1"># Args:</span>
+  <span class="c1">#   x: the vector that is being rescaled.</span>
+  <span class="c1">#</span>
+  <span class="c1"># Returns:</span>
+  <span class="c1">#   The new rescaled vector.</span>
+    
+  min <span class="o">&lt;-</span> <span class="kp">min</span><span class="p">(</span>x<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+  max <span class="o">&lt;-</span> <span class="kp">max</span><span class="p">(</span>x<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+  <span class="p">(</span>x <span class="o">-</span> <span class="kp">min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>max <span class="o">-</span> <span class="kp">min</span><span class="p">)</span>
+<span class="p">}</span>
+
+df<span class="o">$</span>a <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="o">$</span>a<span class="p">)</span>
+df<span class="o">$</span>b <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="o">$</span>b<span class="p">)</span>
+df<span class="o">$</span><span class="kt">c</span> <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="o">$</span><span class="kt">c</span><span class="p">)</span>
+df<span class="o">$</span>d <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="o">$</span>d<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To solve this with a for loop we again think about the three components:</p>
+<ol>
+<li><p><strong>Output</strong>: we already have the output - it's the same as the input!</p>
+</li>
+<li><p><strong>Sequence</strong>: we can think about a data frame as a list of columns, so we can iterate over each column with <code>seq_along(df)</code>.</p>
+</li>
+<li><p><strong>Body</strong>: apply <code>Rescale()</code>.</p>
+</li>
+</ol>
+<p>This gives us:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="kp">seq_along</span><span class="p">(</span>df<span class="p">))</span> <span class="p">{</span>
+  df<span class="p">[[</span>i<span class="p">]]</span> <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="p">[[</span>i<span class="p">]])</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Typically you'll be modifying a list or data frame with this sort of loop, so remember to use <code>[[</code>, not <code>[</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="2.-Looping-Patterns">2. Looping Patterns<a class="anchor-link" href="#2.-Looping-Patterns">&#182;</a></h3><p>Looping over names or values, instead of indices.</p>
+<p>There are three basic ways to loop over a vector. So far you've seen the most general: looping over the numeric indices with <code>for (i in seq_along(xs))</code>, and extracting the value with <code>x[[i]]</code>. There are two other forms:</p>
+<p>1.Loop over the elements: <code>for (x in xs)</code>. This is most useful if you only care about side-effects, like plotting or saving a file, because it's difficult to save the output efficiently.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>xs <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;a1&quot;</span><span class="p">,</span> <span class="s">&quot;b2&quot;</span><span class="p">,</span> <span class="s">&quot;c3&quot;</span><span class="p">)</span>
+<span class="kr">for</span> <span class="p">(</span>x <span class="kr">in</span> xs<span class="p">)</span> <span class="p">{</span>
+    <span class="kp">print</span><span class="p">(</span>x<span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[1] &#34;a1&#34;
+[1] &#34;b2&#34;
+[1] &#34;c3&#34;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>2.Loop over the names: <code>for (nm in names(xs))</code>. This gives you name, which you can use to access the value with <code>x[[nm]]</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="kr">for</span> <span class="p">(</span>x <span class="kr">in</span> <span class="kp">names</span><span class="p">(</span>df<span class="p">))</span> <span class="p">{</span>
+    <span class="kp">print</span><span class="p">(</span>x<span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[1] &#34;a&#34;
+[1] &#34;b&#34;
+[1] &#34;c&#34;
+[1] &#34;d&#34;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.-Unknown-output-length">3. Unknown output length<a class="anchor-link" href="#3.-Unknown-output-length">&#182;</a></h3><p>Sometimes you might not know how long the output will be. For example, imagine you want to simulate some random vectors of random lengths. You might be tempted to solve this problem by progressively growing the vector:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>means <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span>
+
+output <span class="o">&lt;-</span> <span class="kt">double</span><span class="p">()</span>
+<span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="kp">seq_along</span><span class="p">(</span>means<span class="p">))</span> <span class="p">{</span>
+  n <span class="o">&lt;-</span> <span class="kp">sample</span><span class="p">(</span><span class="m">100</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>  <span class="c1"># picking a number from 1 to 100</span>
+  output <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span>output<span class="p">,</span> rnorm<span class="p">(</span>n<span class="p">,</span> means<span class="p">[[</span>i<span class="p">]]))</span>  <span class="c1"># combining outputs of n random numbers around different means</span>
+<span class="p">}</span>
+str<span class="p">(</span>output<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre> num [1:244] -1.2 0.301 0.138 -0.351 -1.448 ...
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>But this is not very efficient because in each iteration, R has to copy all the data from the previous iterations.</p>
+<p>A better solution to save the results in a list, and then combine into a single vector after the loop is done:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>out <span class="o">&lt;-</span> <span class="kt">vector</span><span class="p">(</span><span class="s">&quot;list&quot;</span><span class="p">,</span> <span class="kp">length</span><span class="p">(</span>means<span class="p">))</span>
+<span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="kp">seq_along</span><span class="p">(</span>means<span class="p">))</span> <span class="p">{</span>
+  n <span class="o">&lt;-</span> <span class="kp">sample</span><span class="p">(</span><span class="m">100</span><span class="p">,</span> <span class="m">1</span><span class="p">)</span>
+  out<span class="p">[[</span>i<span class="p">]]</span> <span class="o">&lt;-</span> rnorm<span class="p">(</span>n<span class="p">,</span> means<span class="p">[[</span>i<span class="p">]])</span>
+<span class="p">}</span>
+str<span class="p">(</span>out<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>List of 3
+ $ : num [1:2] -0.163 0.603
+ $ : num [1:82] -0.1419 2.8986 0.4163 1.0983 0.0961 ...
+ $ : num [1:18] 1.25 1.84 1.71 4.55 3.27 ...
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># flatten a list of vectors into a single vector</span>
+str<span class="p">(</span><span class="kp">unlist</span><span class="p">(</span>out<span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre> num [1:102] -0.163 0.603 -0.142 2.899 0.416 ...
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a class="anchor" id="while"></a></p>
+<h3 id="4.-Unknown-sequence-length,-while-loops">4. Unknown sequence length, <code>while</code> loops<a class="anchor-link" href="#4.-Unknown-sequence-length,-while-loops">&#182;</a></h3><p>Sometimes you don't even know how long the input sequence should run for. This is common when doing simulations. For example, you might want to loop until you get three heads in a row. You can't do that sort of iteration with the for loop. Instead, you can use a while loop. A while loop is simpler than for loop because it only has two components, a condition and a body:</p>
+<blockquote><p><code>while (condition) {
+  body
+}</code></p>
+</blockquote>
+<p>A while loop is also more general than a for loop, because you can rewrite any for loop as a while loop, but you can't rewrite every while loop as a for loop:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="kp">seq_along</span><span class="p">(</span>x<span class="p">))</span> <span class="p">{</span>
+  <span class="c1"># body</span>
+<span class="p">}</span>
+
+<span class="c1"># Equivalent to</span>
+i <span class="o">&lt;-</span> <span class="m">1</span>
+<span class="kr">while</span> <span class="p">(</span>i <span class="o">&lt;=</span> <span class="kp">length</span><span class="p">(</span>x<span class="p">))</span> <span class="p">{</span>
+  <span class="c1"># body</span>
+  i <span class="o">&lt;-</span> i <span class="o">+</span> <span class="m">1</span> 
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here's how we could use a while loop to find how many tries it takes to get three heads in a row:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>flip <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kp">sample</span><span class="p">(</span><span class="kt">c</span><span class="p">(</span><span class="s">&quot;T&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">),</span> <span class="m">1</span><span class="p">)</span>
+<span class="p">}</span>
+
+flips <span class="o">&lt;-</span> <span class="m">0</span>
+nheads <span class="o">&lt;-</span> <span class="m">0</span>
+
+<span class="kr">while</span> <span class="p">(</span>nheads <span class="o">&lt;</span> <span class="m">3</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kr">if</span> <span class="p">(</span>flip<span class="p">()</span> <span class="o">==</span> <span class="s">&quot;H&quot;</span><span class="p">)</span> <span class="p">{</span>
+    nheads <span class="o">&lt;-</span> nheads <span class="o">+</span> <span class="m">1</span>
+  <span class="p">}</span> <span class="kr">else</span> <span class="p">{</span>
+    nheads <span class="o">&lt;-</span> <span class="m">0</span>
+  <span class="p">}</span>
+  flips <span class="o">&lt;-</span> flips <span class="o">+</span> <span class="m">1</span>
+<span class="p">}</span>
+flips
 </pre></div>
 
 </div>
@@ -11912,527 +12602,13 @@ The following object is masked from ‘package:base’:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><div style="text-align: right"> [[Jump to top]](#jump_to_top) </div></p>
-<h3 id="When-should-you-write-a-function?">When should you write a function?<a class="anchor-link" href="#When-should-you-write-a-function?">&#182;</a></h3><p>You should consider writing a function whenever you've copied and pasted a block of code more than twice (i.e. you now have three copies of the same code). For example, take a look at this code. What does it do?</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>df <span class="o">&lt;-</span> tibble<span class="o">::</span>tibble<span class="p">(</span>
-  a <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
-  b <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
-  <span class="kt">c</span> <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
-  d <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">)</span>
-<span class="p">)</span>
-df
-
-df<span class="o">$</span>a <span class="o">&lt;-</span> <span class="p">(</span>df<span class="o">$</span>a <span class="o">-</span> <span class="kp">min</span><span class="p">(</span>df<span class="o">$</span>a<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span> <span class="o">/</span> 
-  <span class="p">(</span><span class="kp">max</span><span class="p">(</span>df<span class="o">$</span>a<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">-</span> <span class="kp">min</span><span class="p">(</span>df<span class="o">$</span>a<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span>
-df<span class="o">$</span>b <span class="o">&lt;-</span> <span class="p">(</span>df<span class="o">$</span>b <span class="o">-</span> <span class="kp">min</span><span class="p">(</span>df<span class="o">$</span>b<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span> <span class="o">/</span> 
-  <span class="p">(</span><span class="kp">max</span><span class="p">(</span>df<span class="o">$</span>b<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">-</span> <span class="kp">min</span><span class="p">(</span>df<span class="o">$</span>a<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span>
-df<span class="o">$</span><span class="kt">c</span> <span class="o">&lt;-</span> <span class="p">(</span>df<span class="o">$</span><span class="kt">c</span> <span class="o">-</span> <span class="kp">min</span><span class="p">(</span>df<span class="o">$</span><span class="kt">c</span><span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span> <span class="o">/</span> 
-  <span class="p">(</span><span class="kp">max</span><span class="p">(</span>df<span class="o">$</span><span class="kt">c</span><span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">-</span> <span class="kp">min</span><span class="p">(</span>df<span class="o">$</span><span class="kt">c</span><span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span>
-df<span class="o">$</span>d <span class="o">&lt;-</span> <span class="p">(</span>df<span class="o">$</span>d <span class="o">-</span> <span class="kp">min</span><span class="p">(</span>df<span class="o">$</span>d<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span> <span class="o">/</span> 
-  <span class="p">(</span><span class="kp">max</span><span class="p">(</span>df<span class="o">$</span>d<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="o">-</span> <span class="kp">min</span><span class="p">(</span>df<span class="o">$</span>d<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">))</span>
-df
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th><th scope=col>c</th><th scope=col>d</th></tr></thead>
-<tbody>
-	<tr><td> 1.74301428</td><td>-0.09855738</td><td> 0.08178664</td><td> 0.7846553 </td></tr>
-	<tr><td> 0.79395782</td><td> 0.93802495</td><td> 1.22082038</td><td> 0.6221109 </td></tr>
-	<tr><td>-0.07787306</td><td> 0.22734408</td><td> 0.72769982</td><td>-1.1109981 </td></tr>
-	<tr><td>-0.49802931</td><td>-0.55588838</td><td> 1.53433255</td><td> 0.4789515 </td></tr>
-	<tr><td> 1.04683795</td><td>-1.13053515</td><td>-0.31497058</td><td> 0.4102450 </td></tr>
-	<tr><td> 1.31332783</td><td> 0.60227006</td><td>-0.70550151</td><td> 1.0441625 </td></tr>
-	<tr><td>-1.29286626</td><td> 0.18284614</td><td>-0.21101586</td><td>-0.7383998 </td></tr>
-	<tr><td>-0.50114713</td><td> 2.23573956</td><td> 0.76739983</td><td> 0.3640433 </td></tr>
-	<tr><td>-1.85144635</td><td>-1.83174962</td><td> 0.30956112</td><td> 0.6322416 </td></tr>
-	<tr><td> 0.20747763</td><td> 0.27363026</td><td>-1.48596604</td><td>-0.9696823 </td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th><th scope=col>c</th><th scope=col>d</th></tr></thead>
-<tbody>
-	<tr><td>1.0000000 </td><td>0.7752210 </td><td>0.5190721 </td><td>0.87958798</td></tr>
-	<tr><td>0.7359669 </td><td>1.2388628 </td><td>0.8961983 </td><td>0.80416697</td></tr>
-	<tr><td>0.4934185 </td><td>0.9209900 </td><td>0.7329295 </td><td>0.00000000</td></tr>
-	<tr><td>0.3765285 </td><td>0.5706663 </td><td>1.0000000 </td><td>0.73774067</td></tr>
-	<tr><td>0.8063197 </td><td>0.3136387 </td><td>0.3877085 </td><td>0.70586066</td></tr>
-	<tr><td>0.8804587 </td><td>1.0886866 </td><td>0.2584064 </td><td>1.00000000</td></tr>
-	<tr><td>0.1554003 </td><td>0.9010870 </td><td>0.4221272 </td><td>0.17288657</td></tr>
-	<tr><td>0.3756612 </td><td>1.8193037 </td><td>0.7460739 </td><td>0.68442294</td></tr>
-	<tr><td>0.0000000 </td><td>0.0000000 </td><td>0.5944866 </td><td>0.80886764</td></tr>
-	<tr><td>0.5728047 </td><td>0.9416928 </td><td>0.0000000 </td><td>0.06557091</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>You might be able to puzzle out that this rescales each column to have a range from 0 to 1. But did you spot the mistake? I made an error when copying-and-pasting the code for <code>df$b</code>: I forgot to change an <code>a</code> to a <code>b</code>. Extracting repeated code out into a function is a good idea because it prevents you from making this type of mistake.</p>
-<p>We are rescaling each column individually, we could write a function that just does that and we call it whenever we are rescaling a vector:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>Rescale <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> <span class="p">{</span>
-  <span class="c1"># Rescales each column to a range from 0 to 1</span>
-  <span class="c1">#</span>
-  <span class="c1"># Args:</span>
-  <span class="c1">#   x: the vector that is being rescaled.</span>
-  <span class="c1">#</span>
-  <span class="c1"># Returns:</span>
-  <span class="c1">#   The new rescaled vector.</span>
-
-  min <span class="o">&lt;-</span> <span class="kp">min</span><span class="p">(</span>x<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
-  max <span class="o">&lt;-</span> <span class="kp">max</span><span class="p">(</span>x<span class="p">,</span> na.rm <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
-  <span class="p">(</span>x <span class="o">-</span> <span class="kp">min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>max <span class="o">-</span> <span class="kp">min</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>x  <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">50</span><span class="p">,</span> <span class="m">100</span><span class="p">)</span>
-Rescale<span class="p">(</span>x<span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<ol class=list-inline>
-	<li>0</li>
-	<li>0.5</li>
-	<li>1</li>
-</ol>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We can simplify the original example now that we have a function:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>df<span class="o">$</span>a <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="o">$</span>a<span class="p">)</span>
-df<span class="o">$</span>b <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="o">$</span>b<span class="p">)</span>
-df<span class="o">$</span><span class="kt">c</span> <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="o">$</span><span class="kt">c</span><span class="p">)</span>
-df<span class="o">$</span>d <span class="o">&lt;-</span> Rescale<span class="p">(</span>df<span class="o">$</span>d<span class="p">)</span>
-df
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<thead><tr><th scope=col>a</th><th scope=col>b</th><th scope=col>c</th><th scope=col>d</th></tr></thead>
-<tbody>
-	<tr><td>1.0000000 </td><td>0.4261086 </td><td>0.5190721 </td><td>0.87958798</td></tr>
-	<tr><td>0.7359669 </td><td>0.6809544 </td><td>0.8961983 </td><td>0.80416697</td></tr>
-	<tr><td>0.4934185 </td><td>0.5062321 </td><td>0.7329295 </td><td>0.00000000</td></tr>
-	<tr><td>0.3765285 </td><td>0.3136729 </td><td>1.0000000 </td><td>0.73774067</td></tr>
-	<tr><td>0.8063197 </td><td>0.1723949 </td><td>0.3877085 </td><td>0.70586066</td></tr>
-	<tr><td>0.8804587 </td><td>0.5984084 </td><td>0.2584064 </td><td>1.00000000</td></tr>
-	<tr><td>0.1554003 </td><td>0.4952922 </td><td>0.4221272 </td><td>0.17288657</td></tr>
-	<tr><td>0.3756612 </td><td>1.0000000 </td><td>0.7460739 </td><td>0.68442294</td></tr>
-	<tr><td>0.0000000 </td><td>0.0000000 </td><td>0.5944866 </td><td>0.80886764</td></tr>
-	<tr><td>0.5728047 </td><td>0.5176117 </td><td>0.0000000 </td><td>0.06557091</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Compared to the original, this code is easier to understand and we've eliminated one class of copy-and-paste errors. There is still quite a bit of duplication since we're doing the same thing to multiple columns. We'll learn how to eliminate that duplication in iteration.</p>
-<h3 id="Practice">Practice<a class="anchor-link" href="#Practice">&#182;</a></h3><p>What do these functions do?</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>f1 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>string<span class="p">,</span> prefix<span class="p">)</span> <span class="p">{</span>
-  <span class="kp">substr</span><span class="p">(</span>string<span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="kp">nchar</span><span class="p">(</span>prefix<span class="p">))</span> <span class="o">==</span> prefix
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your answer goes here</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>f2 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> <span class="p">{</span>
-  <span class="kr">if</span> <span class="p">(</span><span class="kp">length</span><span class="p">(</span>x<span class="p">)</span> <span class="o">&lt;=</span> <span class="m">1</span><span class="p">)</span> <span class="kr">return</span><span class="p">(</span><span class="kc">NULL</span><span class="p">)</span>
-  x<span class="p">[</span><span class="o">-</span><span class="kp">length</span><span class="p">(</span>x<span class="p">)]</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your answer goes here</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>f3 <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">,</span> y<span class="p">)</span> <span class="p">{</span>
-  <span class="kp">rep</span><span class="p">(</span>y<span class="p">,</span> length.out <span class="o">=</span> <span class="kp">length</span><span class="p">(</span>x<span class="p">))</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your answer goes here</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Practice">Practice<a class="anchor-link" href="#Practice">&#182;</a></h3><p>Write a function that takes a <code>dataframe</code>, <code>x</code>, <code>y</code>, and a selected color and returns a scatterplot with the given color.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your answer goes here</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><div style="text-align: right"> [[Jump to top]](#jump_to_top) </div></p>
-<h2 id="Function-arguments">Function arguments<a class="anchor-link" href="#Function-arguments">&#182;</a></h2><p>Generally, data arguments should come first. Detail arguments should go on the end, and usually should have default values. We specify a default argument by giving it a default value in the function definition using <code>=</code>.</p>
-<p>For example, lets modify our <code>AddFunction()</code> so that it adds 1 to <code>a</code> if <code>b</code> is not provided:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>AddFunction <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>a<span class="p">,</span> b <span class="o">=</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kr">return</span><span class="p">(</span>a <span class="o">+</span> b<span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>AddFunction<span class="p">(</span><span class="m">8</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-9
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>AddFunction<span class="p">(</span><span class="m">5</span><span class="p">,</span> <span class="m">10</span><span class="p">)</span>  <span class="c1"># It still does what we expect to do when both arguments are available</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-15
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The default value should almost always be the most common value. Except for safety reasons.</p>
-<h3 id="Choosing-names">Choosing names<a class="anchor-link" href="#Choosing-names">&#182;</a></h3><p>The names of the arguments are also important. R doesn't care, but the readers of your code (including future-you!) will. Generally you should prefer longer, more descriptive names, but there are a handful of very common, very short names. It's worth memorizing these:</p>
-<p><code>x</code>, <code>y</code>, <code>z</code>: vectors.</p>
-<p><code>w</code>: a vector of weights.</p>
-<p><code>df</code>: a data frame.</p>
-<p><code>i</code>, <code>j</code>: numeric indices (typically rows and columns).</p>
-<p><code>n</code>: length, or number of rows.</p>
-<p><code>p</code>: number of columns.</p>
-<p>Otherwise, consider matching names of arguments in existing R functions. For example, use <code>na.rm</code> to determine if missing values should be removed.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
+<p>I mention while loops only briefly, because I hardly ever use them. They're most often used for simulation, which is outside of the scope of these notebooks.</p>
 <hr>
-<p><div style="text-align: right"> [[Jump to top]](#jump_to_top) </div>
-<a class="anchor" id="Conditionals"></a></p>
-<h2 id="Conditionals">Conditionals<a class="anchor-link" href="#Conditionals">&#182;</a></h2><p>An <code>if</code> statement allows you to conditionally execute code. It looks like this:</p>
-<blockquote><p><code>if (condition) {
-  code executed when condition is TRUE
-} else {
-  code executed when condition is FALSE
-}</code></p>
-</blockquote>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>condition <span class="o">=</span> <span class="kc">TRUE</span>
-<span class="kr">if</span> <span class="p">(</span>condition<span class="p">)</span> <span class="p">{</span>
-  <span class="kp">print</span><span class="p">(</span><span class="s">&quot;Condition is TRUE&quot;</span><span class="p">)</span>
-<span class="p">}</span> <span class="kr">else</span> <span class="p">{</span>
-  <span class="kp">print</span><span class="p">(</span><span class="s">&quot;Condition is FALSE&quot;</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>[1] &#34;Condition is TRUE&#34;
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The condition must evaluate to either <code>TRUE</code> or <code>FALSE</code>.</p>
-<p>You can use <code>||</code> (or) and <code>&amp;&amp;</code> (and) to combine multiple logical expressions.</p>
-<p>You can chain multiple if statements together:</p>
-<blockquote><p><code>if (this) {
-  do that
-} else if (that) {
-  do something else
-} else {
-  do something else 
-}</code></p>
+<h3 id="Exercise-3">Exercise 3<a class="anchor-link" href="#Exercise-3">&#182;</a></h3><p>Write a function that prints the mean of each numeric column in a data frame, along with its name. For example, <code>show_mean(iris)</code> would print:</p>
+<blockquote><p><code>Sepal.Length 5.84
+Sepal.Width 3.06 
+Petal.Length 3.76 
+Petal.Width 1.20</code></p>
 </blockquote>
 
 </div>
@@ -12443,7 +12619,8 @@ df
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <hr>
-<h3 id="Exercise-1">Exercise 1<a class="anchor-link" href="#Exercise-1">&#182;</a></h3><p>Write a greeting if statement that says "good morning", "good afternoon", or "good evening", depending on the time of day. (Hint: use lubridate's <code>now()</code> function to get the current time, and by <code>hour()</code> extract the hour of day).</p>
+<h3 id="For-loops-vs.-functionals">For loops vs. functionals<a class="anchor-link" href="#For-loops-vs.-functionals">&#182;</a></h3><p>For loops are not as important in R as they are in other languages because R is a functional programming language. This means that it's possible to wrap up for loops in a function, and call that function instead of using the for loop directly.</p>
+<p>To see why this is important, consider this simple data frame:</p>
 
 </div>
 </div>
@@ -12453,499 +12630,33 @@ df
 <div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your answer goes here</span>
+<div class=" highlight hl-r"><pre><span></span>df <span class="o">&lt;-</span> tibble<span class="p">(</span>
+  a <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  b <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  <span class="kt">c</span> <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">),</span>
+  d <span class="o">=</span> rnorm<span class="p">(</span><span class="m">10</span><span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 
 </div>
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<hr>
-<h3 id="Exercise-2">Exercise 2<a class="anchor-link" href="#Exercise-2">&#182;</a></h3><p>Implement an if statement: It receives an integer <code>number</code>. If our <code>number</code> is divisible by three, it prints "fizz". If it's divisible by five it print "buzz". If it's divisible by three and five, it prints "fizzbuzz". Otherwise, it returns the number.</p>
-<p>(Hint: <code>x%%y</code> gives the remainder of <code>x</code> divided by <code>y</code>)</p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your answer goes here</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><div style="text-align: right"> [[Jump to top]](#jump_to_top) </div>
-<a class="anchor" id="cut"></a></p>
-<h2 id="cut()">cut()<a class="anchor-link" href="#cut()">&#182;</a></h2><p><code>cut</code> divides the range of <code>x</code> into intervals and codes the values in <code>x</code> according to which interval they fall. The leftmost interval corresponds to level one, the next leftmost to level two and so on.</p>
-<p>For instance here we label a sample of 100 random numbers from a normal distribution:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>z <span class="o">&lt;-</span> rnorm<span class="p">(</span><span class="m">100</span><span class="p">)</span>
-<span class="kp">print</span><span class="p">(</span><span class="kp">cut</span><span class="p">(</span>z<span class="p">,</span> breaks <span class="o">=</span> <span class="m">-6</span><span class="o">:</span><span class="m">6</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>  [1] (-3,-2] (-1,0]  (0,1]   (-1,0]  (0,1]   (-2,-1] (0,1]   (-1,0]  (0,1]  
- [10] (-1,0]  (0,1]   (-1,0]  (0,1]   (-2,-1] (0,1]   (-2,-1] (-2,-1] (-1,0] 
- [19] (-2,-1] (1,2]   (-2,-1] (-1,0]  (0,1]   (-1,0]  (0,1]   (0,1]   (0,1]  
- [28] (1,2]   (0,1]   (-2,-1] (1,2]   (-1,0]  (0,1]   (0,1]   (0,1]   (0,1]  
- [37] (0,1]   (-1,0]  (-1,0]  (-1,0]  (-2,-1] (1,2]   (0,1]   (-1,0]  (-2,-1]
- [46] (0,1]   (-2,-1] (0,1]   (0,1]   (0,1]   (-2,-1] (-1,0]  (-1,0]  (-1,0] 
- [55] (-1,0]  (-2,-1] (-1,0]  (-1,0]  (-1,0]  (-1,0]  (-1,0]  (0,1]   (0,1]  
- [64] (-1,0]  (-1,0]  (0,1]   (-1,0]  (0,1]   (1,2]   (0,1]   (-1,0]  (-1,0] 
- [73] (0,1]   (-2,-1] (2,3]   (-1,0]  (-1,0]  (-2,-1] (0,1]   (-2,-1] (-1,0] 
- [82] (0,1]   (0,1]   (0,1]   (0,1]   (1,2]   (0,1]   (0,1]   (-1,0]  (0,1]  
- [91] (1,2]   (1,2]   (0,1]   (-1,0]  (0,1]   (-1,0]  (-1,0]  (2,3]   (1,2]  
-[100] (-1,0] 
-12 Levels: (-6,-5] (-5,-4] (-4,-3] (-3,-2] (-2,-1] (-1,0] (0,1] (1,2] ... (5,6]
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's summarize these bins for a 10,000 sample by <code>table()</code>:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>Z <span class="o">&lt;-</span> rnorm<span class="p">(</span><span class="m">10000</span><span class="p">)</span>
-<span class="kp">table</span><span class="p">(</span><span class="kp">cut</span><span class="p">(</span>Z<span class="p">,</span> breaks <span class="o">=</span> <span class="m">-6</span><span class="o">:</span><span class="m">6</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-
-<div class="output_text output_subarea ">
-<pre>
-(-6,-5] (-5,-4] (-4,-3] (-3,-2] (-2,-1]  (-1,0]   (0,1]   (1,2]   (2,3]   (3,4] 
-      0       0      12     222    1385    3437    3351    1372     212       9 
-  (4,5]   (5,6] 
-      0       0 </pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We could answer exercise 1 by <code>cut()</code>:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>greeting <span class="o">&lt;-</span> <span class="kp">cut</span><span class="p">(</span>hour<span class="p">(</span>now<span class="p">()),</span> <span class="kt">c</span><span class="p">(</span><span class="m">-1</span><span class="p">,</span> <span class="m">4</span><span class="p">,</span> <span class="m">11</span><span class="p">,</span> <span class="m">17</span><span class="p">,</span> <span class="m">24</span><span class="p">),</span> right <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span>
-                labels <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;Good Evening!&quot;</span><span class="p">,</span> <span class="s">&quot;Good Morning!&quot;</span><span class="p">,</span> <span class="s">&quot;Good Afternoon!&quot;</span><span class="p">,</span> <span class="s">&quot;Good Evening!&quot;</span><span class="p">))</span>
-<span class="kp">print</span><span class="p">(</span>greeting<span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>[1] Good Evening!
-Levels: Good Evening! Good Morning! Good Afternoon!
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Question: what does <code>right = TRUE</code> do in the code above?</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1"># Answer goes here</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<hr>
-<p><div style="text-align: right"> [[Jump to top]](#jump_to_top) </div>
-<a class="anchor" id="stop"></a></p>
-<h3 id="stop()">stop()<a class="anchor-link" href="#stop()">&#182;</a></h3><p><strong>Checking function input arguments</strong></p>
-<p>It's good practice to check important preconditions, and throw an error (with <code>stop()</code>), if they are not true:</p>
-<p>For example we have this function that gives us <code>TRUE</code> if input is an even number and <code>FALSE</code> if it's an odd integer:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>IsEven <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>a<span class="p">)</span> <span class="p">{</span>
-    <span class="kr">if</span> <span class="p">(</span>a <span class="o">%%</span> <span class="m">2</span> <span class="o">==</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kr">return</span><span class="p">(</span><span class="kc">TRUE</span><span class="p">)</span>
-    <span class="p">}</span> <span class="kr">else</span> <span class="p">{</span>
-        <span class="kr">return</span><span class="p">(</span><span class="kc">FALSE</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>IsEven<span class="p">(</span><span class="m">4</span><span class="p">)</span>
-IsEven<span class="p">(</span><span class="m">5</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-TRUE
-</div>
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-FALSE
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now what happens if we give a non-integer input?</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>IsEven<span class="p">(</span><span class="m">4.4</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-FALSE
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>4.4 is not an off number! In fact it's not an integer, so we shouldn't have done the test. Let's add a <code>stop()</code> and check first to see if the input is an integer:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>IsEven <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>a<span class="p">)</span> <span class="p">{</span>
-    
-    <span class="kr">if</span> <span class="p">(</span>a <span class="o">%%</span> <span class="m">1</span> <span class="o">!=</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kp">stop</span><span class="p">(</span><span class="s">&quot;a must be an integer!&quot;</span><span class="p">)</span>
-    <span class="p">}</span>
-    
-    <span class="kr">if</span> <span class="p">(</span>a <span class="o">%%</span> <span class="m">2</span> <span class="o">==</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kr">return</span><span class="p">(</span><span class="kc">TRUE</span><span class="p">)</span>
-    <span class="p">}</span> <span class="kr">else</span> <span class="p">{</span>
-        <span class="kr">return</span><span class="p">(</span><span class="kc">FALSE</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="c1">#IsEven(4.4)  # Should return an error now</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><div style="text-align: right"> [[Jump to top]](#jump_to_top) </div>
-<a class="anchor" id="return"></a></p>
-<h3 id="return()">return()<a class="anchor-link" href="#return()">&#182;</a></h3><p><strong> Explicit return statements</strong></p>
-<p>The value returned by the function is usually the last statement it evaluates, but you can choose to return early by using <code>return()</code>. I think it's best to save the use of <code>return()</code> to signal that you can return early with a simpler solution. A common reason to do this is because the inputs are empty:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>ComplicatedFunction <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">,</span> y<span class="p">,</span> z<span class="p">)</span> <span class="p">{</span>
-  <span class="kr">if</span> <span class="p">(</span><span class="kp">length</span><span class="p">(</span>x<span class="p">)</span> <span class="o">==</span> <span class="m">0</span> <span class="o">||</span> <span class="kp">length</span><span class="p">(</span>y<span class="p">)</span> <span class="o">==</span> <span class="m">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kr">return</span><span class="p">(</span><span class="m">0</span><span class="p">)</span>
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># adding an argument that supplies the function to apply to each column</span>
+col_summary <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>df<span class="p">,</span> fun<span class="p">)</span> <span class="p">{</span>
+  out <span class="o">&lt;-</span> <span class="kt">vector</span><span class="p">(</span><span class="s">&quot;double&quot;</span><span class="p">,</span> <span class="kp">length</span><span class="p">(</span>df<span class="p">))</span>
+  <span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="kp">seq_along</span><span class="p">(</span>df<span class="p">))</span> <span class="p">{</span>
+    out<span class="p">[</span>i<span class="p">]</span> <span class="o">&lt;-</span> fun<span class="p">(</span>df<span class="p">[[</span>i<span class="p">]])</span>
   <span class="p">}</span>
-    
-  <span class="c1"># Complicated code here</span>
+  out
 <span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Another reason is because you have an if statement with one complex block and one simple block</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[31]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>f <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kr">if</span> <span class="p">(</span>x<span class="p">)</span> <span class="p">{</span>
-    <span class="c1"># Do </span>
-    <span class="c1"># something</span>
-    <span class="c1"># that</span>
-    <span class="c1"># takes</span>
-    <span class="c1"># many</span>
-    <span class="c1"># lines</span>
-    <span class="c1"># to</span>
-    <span class="c1"># express</span>
-  <span class="p">}</span> <span class="kr">else</span> <span class="p">{</span>
-    <span class="c1"># return something short</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>But if the first block is very long, by the time you get to the else, you've forgotten the condition. One way to rewrite it is to use an early return for the simple case:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>f <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kr">if</span> <span class="p">(</span><span class="o">!</span>x<span class="p">)</span> <span class="p">{</span>
-    <span class="kr">return</span><span class="p">(</span>something_short<span class="p">)</span>
-  <span class="p">}</span>
-
-  <span class="c1"># Do </span>
-  <span class="c1"># something</span>
-  <span class="c1"># that</span>
-  <span class="c1"># takes</span>
-  <span class="c1"># many</span>
-  <span class="c1"># lines</span>
-  <span class="c1"># to</span>
-  <span class="c1"># express</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><div style="text-align: right"> [[Jump to top]](#jump_to_top) </div>
-<a class="anchor" id="ifelse"></a></p>
-<h2 id="ifelse()">ifelse()<a class="anchor-link" href="#ifelse()">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><code>ifelse(test_expression, yes, no)</code> returns a value with the same shape as <code>test_expression</code> which is filled with elements selected from either <code>yes</code> or <code>no</code> depending on whether the element of <code>test_expression</code> is <code>TRUE</code> or <code>FALSE</code>.</p>
-<p>Example:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>x <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="m">6</span><span class="o">:</span><span class="m">-4</span><span class="p">)</span>
-<span class="kp">ifelse</span><span class="p">(</span>x <span class="o">&gt;=</span> <span class="m">0</span><span class="p">,</span> x<span class="p">,</span> <span class="kc">NA</span><span class="p">)</span>
+col_summary<span class="p">(</span>df<span class="p">,</span> median<span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12964,17 +12675,10 @@ FALSE
 
 <div class="output_html rendered_html output_subarea ">
 <ol class=list-inline>
-	<li>6</li>
-	<li>5</li>
-	<li>4</li>
-	<li>3</li>
-	<li>2</li>
-	<li>1</li>
-	<li>0</li>
-	<li>&lt;NA&gt;</li>
-	<li>&lt;NA&gt;</li>
-	<li>&lt;NA&gt;</li>
-	<li>&lt;NA&gt;</li>
+	<li>0.102668666269979</li>
+	<li>-0.608039940891728</li>
+	<li>0.214935235899968</li>
+	<li>0.0874532421921344</li>
 </ol>
 
 </div>
@@ -12987,11 +12691,10 @@ FALSE
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>number <span class="o">=</span> <span class="m">4</span>
-<span class="kp">ifelse</span><span class="p">(</span>number <span class="o">%%</span> <span class="m">2</span> <span class="o">==</span> <span class="m">0</span><span class="p">,</span> <span class="s">&quot;even&quot;</span><span class="p">,</span> <span class="s">&quot;odd&quot;</span><span class="p">)</span>
+<div class=" highlight hl-r"><pre><span></span>col_summary<span class="p">(</span>df<span class="p">,</span> <span class="kp">mean</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -13009,84 +12712,12 @@ FALSE
 
 
 <div class="output_html rendered_html output_subarea ">
-'even'
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[35]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="p">(</span>a <span class="o">&lt;-</span> <span class="kt">matrix</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="m">9</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">3</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<tbody>
-	<tr><td>1</td><td>4</td><td>7</td></tr>
-	<tr><td>2</td><td>5</td><td>8</td></tr>
-	<tr><td>3</td><td>6</td><td>9</td></tr>
-</tbody>
-</table>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="kp">ifelse</span><span class="p">(</span>a <span class="o">%%</span> <span class="m">2</span> <span class="o">==</span> <span class="m">0</span><span class="p">,</span> a<span class="p">,</span> <span class="m">0</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<table>
-<tbody>
-	<tr><td>0</td><td>4</td><td>0</td></tr>
-	<tr><td>2</td><td>0</td><td>8</td></tr>
-	<tr><td>0</td><td>6</td><td>0</td></tr>
-</tbody>
-</table>
+<ol class=list-inline>
+	<li>-0.0927269403221744</li>
+	<li>-0.45973010772967</li>
+	<li>0.0900257888319443</li>
+	<li>-0.00195375360665773</li>
+</ol>
 
 </div>
 
@@ -13100,57 +12731,574 @@ FALSE
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>The idea of passing a function to another function is extremely powerful idea, and it's one of the behaviors that makes R a functional programming language. It might take you a while to wrap your head around the idea, but it's worth the investment.</p>
+<hr>
+<h3 id="Exercise-4">Exercise 4<a class="anchor-link" href="#Exercise-4">&#182;</a></h3><p>Adapt <code>col_summary()</code> so that it only applies to numeric columns You might want to start with an <code>is_numeric()</code> function that returns a logical vector that has a TRUE corresponding to each numeric column.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div style="text-align: right"> [[Jump to top]](#jump_to_top) </div><p><a class="anchor" id="purr"></a></p>
+<h2 id="iteration-with-purrr-package">iteration with purrr package<a class="anchor-link" href="#iteration-with-purrr-package">&#182;</a></h2><p>The goal of using <strong>purrr</strong> functions instead of for loops is to allow you break common list manipulation challenges into independent pieces. Once you've solved the problem for a single element of the list, purrr takes care of generalizing your solution to every element in the list.</p>
+<p>The purrr package provides functions that eliminate the need for many common <em>for loops</em>. The apply family of functions in base R (<code>apply()</code>, <code>lapply()</code>, <code>tapply()</code>, etc) solve a similar problem, but purrr is more consistent and thus is easier to learn.</p>
+<p><a class="anchor" id="map"></a></p>
+<h3 id="The-map-functions">The map functions<a class="anchor-link" href="#The-map-functions">&#182;</a></h3><p>The pattern of looping over a vector, doing something to each element and saving the results is so common that the purrr package provides a family of functions to do it for you. There is one function for each type of output:</p>
+<ul>
+<li><code>map()</code> makes a list.</li>
+<li><code>map_lgl()</code> makes a logical vector.</li>
+<li><code>map_int()</code> makes an integer vector.</li>
+<li><code>map_dbl()</code> makes a double vector.</li>
+<li><code>map_chr()</code> makes a character vector.</li>
+</ul>
+<p>Each function takes a vector as input, applies a function to each piece, and then returns a new vector that's the same length (and has the same names) as the input. The type of the vector is determined by the suffix to the map function.</p>
+<p>Once you master these functions, you'll find it takes much less time to solve iteration problems. But you should never feel bad about using a for loop instead of a map function.The map functions are a step up a tower of abstraction, and it can take a long time to get your head around how they work. The important thing is that you solve the problem that you're working on, not write the most concise and elegant code (although that's definitely something you want to strive towards!).</p>
+<p>The chief benefits of using functions like <code>map()</code> is not speed, but clarity: they make your code easier to write and to read.</p>
+<p>We can use these functions to perform the same computations as the last for loop. Those summary functions returned doubles, so we need to use <code>map_dbl()</code>:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>map_dbl<span class="p">(</span>df<span class="p">,</span> <span class="kp">mean</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<dl class=dl-horizontal>
+	<dt>a</dt>
+		<dd>-0.0927269403221744</dd>
+	<dt>b</dt>
+		<dd>-0.45973010772967</dd>
+	<dt>c</dt>
+		<dd>0.0900257888319443</dd>
+	<dt>d</dt>
+		<dd>-0.00195375360665773</dd>
+</dl>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>map_dbl<span class="p">(</span>df<span class="p">,</span> median<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<dl class=dl-horizontal>
+	<dt>a</dt>
+		<dd>0.102668666269979</dd>
+	<dt>b</dt>
+		<dd>-0.608039940891728</dd>
+	<dt>c</dt>
+		<dd>0.214935235899968</dd>
+	<dt>d</dt>
+		<dd>0.0874532421921344</dd>
+</dl>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The map functions preserve names:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>z <span class="o">&lt;-</span> <span class="kt">list</span><span class="p">(</span>x <span class="o">=</span> <span class="m">1</span><span class="o">:</span><span class="m">3</span><span class="p">,</span> y <span class="o">=</span> <span class="m">4</span><span class="o">:</span><span class="m">5</span><span class="p">)</span>
+map_int<span class="p">(</span>z<span class="p">,</span> <span class="kp">length</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<dl class=dl-horizontal>
+	<dt>x</dt>
+		<dd>3</dd>
+	<dt>y</dt>
+		<dd>2</dd>
+</dl>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+<h3 id="Exercise-5">Exercise 5<a class="anchor-link" href="#Exercise-5">&#182;</a></h3><p>Write code that uses one of the map functions to:</p>
+<ol>
+<li>Compute the mean of every column in <code>mtcars</code>.</li>
+<li>Determine the type of each column in <code>nycflights13::flights</code>. (Note: You might need to install nycflights13 package)</li>
+<li>Compute the number of unique values in each column of <code>iris</code>.</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+<h3 id="Exercise-6">Exercise 6<a class="anchor-link" href="#Exercise-6">&#182;</a></h3><p>How can you create a single vector that for each column in a data frame indicates whether or not it's a factor?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+<h3 id="Exercise-7">Exercise 7<a class="anchor-link" href="#Exercise-7">&#182;</a></h3><p>What happens when you use the map functions on vectors that aren't lists? What does <code>map(1:5, runif)</code> do?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+<h3 id="Exercise-8">Exercise 8<a class="anchor-link" href="#Exercise-8">&#182;</a></h3><p>What does <code>map(-2:2, rnorm, n = 5)</code> do? Why? What does <code>map_dbl(-2:2, rnorm, n = 5)</code> do?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span><span class="c1"># Your code goes here</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+<div style="text-align: right"> [[Jump to top]](#jump_to_top) </div><p><a class="anchor" id="map2"></a></p>
+<h2 id="map2()">map2()<a class="anchor-link" href="#map2()">&#182;</a></h2><p>So far we've mapped along a single input. But often you have multiple related inputs that you need iterate along in parallel. That's the job of the <code>map2()</code> and <code>pmap()</code> functions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>mu <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="m">5</span><span class="p">,</span> <span class="m">10</span><span class="p">,</span> <span class="m">-3</span><span class="p">)</span>
+sigma <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">5</span><span class="p">,</span> <span class="m">10</span><span class="p">)</span>
+map2<span class="p">(</span>mu<span class="p">,</span> sigma<span class="p">,</span> rnorm<span class="p">,</span> n <span class="o">=</span> <span class="m">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<ol>
+	<li><ol class=list-inline>
+	<li>4.04223649541084</li>
+	<li>3.99863157551241</li>
+	<li>5.15733983001799</li>
+	<li>4.56116347937602</li>
+	<li>8.43629031745249</li>
+</ol>
+</li>
+	<li><ol class=list-inline>
+	<li>14.9137692097886</li>
+	<li>0.880072837529282</li>
+	<li>11.6388160221066</li>
+	<li>2.42411772555094</li>
+	<li>11.642659239108</li>
+</ol>
+</li>
+	<li><ol class=list-inline>
+	<li>3.68537843517911</li>
+	<li>-10.9779733779666</li>
+	<li>-2.56850560373916</li>
+	<li>-7.66955436020876</li>
+	<li>3.609945739127</li>
+</ol>
+</li>
+</ol>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../png/map2.png" width="600px" align="center"></p>
+<p>Note that the arguments that vary for each call come before the function; arguments that are the same for every call come after.</p>
+<p>Like <code>map()</code>, <code>map2()</code> is just a wrapper around a for loop:</p>
+<blockquote><p><code>map2 &lt;- function(x, y, f, ...) {
+  out &lt;- vector("list", length(x))
+  for (i in seq_along(x)) {
+    out[[i]] &lt;- f(x[[i]], y[[i]], ...)
+  }
+  out
+}</code></p>
+</blockquote>
+<p><a class="anchor" id="pmap"></a></p>
+<h2 id="pmap()">pmap()<a class="anchor-link" href="#pmap()">&#182;</a></h2><p>You could also imagine <code>map3()</code>, <code>map4()</code>, <code>map5()</code>, <code>map6()</code> etc, but that would get tedious quickly. Instead, purrr provides <code>pmap()</code> which takes a list of arguments. You might use that if you wanted to vary the mean, standard deviation, and number of samples:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>n <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">5</span><span class="p">)</span>
+pmap<span class="p">(</span><span class="kt">list</span><span class="p">(</span>n<span class="p">,</span> mu<span class="p">,</span> sigma<span class="p">),</span> rnorm<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<ol>
+	<li>4.05285347546849</li>
+	<li><ol class=list-inline>
+	<li>-0.240152929608435</li>
+	<li>2.06710548429029</li>
+	<li>15.5726216019291</li>
+</ol>
+</li>
+	<li><ol class=list-inline>
+	<li>2.63981790503077</li>
+	<li>-9.60281778600202</li>
+	<li>8.49942217171659</li>
+	<li>-6.61417396248442</li>
+	<li>-13.1933135052681</li>
+</ol>
+</li>
+</ol>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you don't name the elements of list, <code>pmap()</code> will use positional matching when calling the function. That's a little fragile, and makes the code harder to read, so it's better to name the arguments:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>args2 <span class="o">&lt;-</span> <span class="kt">list</span><span class="p">(</span>mean <span class="o">=</span> mu<span class="p">,</span> sd <span class="o">=</span> sigma<span class="p">,</span> n <span class="o">=</span> n<span class="p">)</span>
+pmap<span class="p">(</span>args2<span class="p">,</span> rnorm<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<ol>
+	<li>4.38421001336441</li>
+	<li><ol class=list-inline>
+	<li>15.8395850810138</li>
+	<li>12.737217254449</li>
+	<li>8.44306955749494</li>
+</ol>
+</li>
+	<li><ol class=list-inline>
+	<li>8.86939250640474</li>
+	<li>0.944800627485898</li>
+	<li>-19.5613298678182</li>
+	<li>-8.830125167705</li>
+	<li>3.08870758609297</li>
+</ol>
+</li>
+</ol>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../png/pmap.png" width="600px" align="center"></p>
+<p>We can wrap up the arguments in a dataframe since they are all the same length:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-r"><pre><span></span>params <span class="o">&lt;-</span> tribble<span class="p">(</span>
+  <span class="o">~</span><span class="kp">mean</span><span class="p">,</span> <span class="o">~</span>sd<span class="p">,</span> <span class="o">~</span>n<span class="p">,</span>
+    <span class="m">5</span><span class="p">,</span>     <span class="m">1</span><span class="p">,</span>  <span class="m">1</span><span class="p">,</span>
+   <span class="m">10</span><span class="p">,</span>     <span class="m">5</span><span class="p">,</span>  <span class="m">3</span><span class="p">,</span>
+   <span class="m">-3</span><span class="p">,</span>    <span class="m">10</span><span class="p">,</span>  <span class="m">5</span>
+<span class="p">)</span>
+params
+pmap<span class="p">(</span>params<span class="p">,</span> rnorm<span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<table>
+<thead><tr><th scope=col>mean</th><th scope=col>sd</th><th scope=col>n</th></tr></thead>
+<tbody>
+	<tr><td> 5</td><td> 1</td><td>1 </td></tr>
+	<tr><td>10</td><td> 5</td><td>3 </td></tr>
+	<tr><td>-3</td><td>10</td><td>5 </td></tr>
+</tbody>
+</table>
+
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<ol>
+	<li>4.04909524840903</li>
+	<li><ol class=list-inline>
+	<li>10.2794180531759</li>
+	<li>6.67186690149204</li>
+	<li>6.82614577337157</li>
+</ol>
+</li>
+	<li><ol class=list-inline>
+	<li>-13.7863440557742</li>
+	<li>3.00427394574409</li>
+	<li>-1.72095669427444</li>
+	<li>-6.6995676092603</li>
+	<li>5.03301313190812</li>
+</ol>
+</li>
+</ol>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As soon as your code gets complicated, I think a data frame is a good approach because it ensures that each column has a name and is the same length as all the other columns.</p>
 <div style="text-align: right"> [[Jump to top]](#jump_to_top) </div>
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Function-documentation">Function documentation<a class="anchor-link" href="#Function-documentation">&#182;</a></h2><p>Functions should contain a comments section immediately below the function definition line. These comments should consist of a one-sentence description of the function; a list of the function's arguments, denoted by <code>Args:</code>, with a description of each (including the data type); and a description of the return value, denoted by <code>Returns:</code>. The comments should be descriptive enough that a caller can use the function without reading any of the function's code. Example:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span>CalculateSampleCovariance <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">,</span> y<span class="p">,</span> verbose <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1"># Computes the sample covariance between two vectors.</span>
-  <span class="c1">#</span>
-  <span class="c1"># Args:</span>
-  <span class="c1">#   x: One of two vectors whose sample covariance is to be calculated.</span>
-  <span class="c1">#   y: The other vector. x and y must have the same length, greater than one,</span>
-  <span class="c1">#      with no missing values.</span>
-  <span class="c1">#   verbose: If TRUE, prints sample covariance; if not, not. Default is TRUE.</span>
-  <span class="c1">#</span>
-  <span class="c1"># Returns:</span>
-  <span class="c1">#   The sample covariance between x and y.</span>
-  
-  n <span class="o">&lt;-</span> <span class="kp">length</span><span class="p">(</span>x<span class="p">)</span>
-    
-  <span class="c1"># Error handling</span>
-  <span class="kr">if</span> <span class="p">(</span>n <span class="o">&lt;=</span> <span class="m">1</span> <span class="o">||</span> n <span class="o">!=</span> <span class="kp">length</span><span class="p">(</span>y<span class="p">))</span> <span class="p">{</span>
-    <span class="kp">stop</span><span class="p">(</span><span class="s">&quot;Arguments x and y have different lengths: &quot;</span><span class="p">,</span>
-         <span class="kp">length</span><span class="p">(</span>x<span class="p">),</span> <span class="s">&quot; and &quot;</span><span class="p">,</span> <span class="kp">length</span><span class="p">(</span>y<span class="p">),</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
-  <span class="p">}</span>
-  <span class="kr">if</span> <span class="p">(</span><span class="kc">TRUE</span> <span class="o">%in%</span> <span class="kp">is.na</span><span class="p">(</span>x<span class="p">)</span> <span class="o">||</span> <span class="kc">TRUE</span> <span class="o">%in%</span> <span class="kp">is.na</span><span class="p">(</span>y<span class="p">))</span> <span class="p">{</span>
-    <span class="kp">stop</span><span class="p">(</span><span class="s">&quot; Arguments x and y must not have missing values.&quot;</span><span class="p">)</span>
-  <span class="p">}</span>
-  covariance <span class="o">&lt;-</span> var<span class="p">(</span>x<span class="p">,</span> y<span class="p">)</span>
-  <span class="kr">if</span> <span class="p">(</span>verbose<span class="p">)</span>
-    <span class="kp">cat</span><span class="p">(</span><span class="s">&quot;Covariance = &quot;</span><span class="p">,</span> <span class="kp">round</span><span class="p">(</span>covariance<span class="p">,</span> <span class="m">4</span><span class="p">),</span> <span class="s">&quot;.\n&quot;</span><span class="p">,</span> sep <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
-  <span class="kr">return</span><span class="p">(</span>covariance<span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
 </div>
     </div>
   </div>
