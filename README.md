@@ -77,8 +77,6 @@ Here is how the notebooks are organized:
 
 **[11 RMarkdown](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/11-R-Markdown.ipynb)**
 
-**[12 Interactive-Visualization-with-`plotly`](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/12-Interactive-Visualization-with-plotly.ipynb)**
-
 **[Glossary](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/Glossary.ipynb)**
 
 ### Credits
