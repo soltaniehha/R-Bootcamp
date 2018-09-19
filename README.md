@@ -58,6 +58,7 @@ Here is how the notebooks are organized:
 **[07 Data-Import-Export](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/07-Data-Import-Export.ipynb)**
 
 **[08 Data-Transformation](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/08-Data-Transformation.ipynb)**
+* Pipes with magrittr
 * Overview of dplyr
 * Filter rows with `filter()`
 * Arrange rows with `arrange()`
@@ -71,7 +72,6 @@ Here is how the notebooks are organized:
 * Strings with stringr
 * Factors with forcats
 * Dates and Time with lubridate
-* Pipes with magrittr
 
 **[10 Exploratory-Data-Analysis](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/10-Exploratory-Data-Analysis.ipynb)**
 
