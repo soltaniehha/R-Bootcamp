@@ -64,14 +64,11 @@ Here is how the notebooks are organized:
 * Arrange rows with `arrange()`
 * Select columns with `select()`
 * Add new variables with `mutate()`
-* Grouped summaries with `summarise()`
+* Grouped summaries with `summarize()`
 
 **[09 Data-Manipulation](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/09-Data-Manipulation.ipynb)**
 * Tidy data with tidyr
 * Relational Data with dplyr
-* Strings with stringr
-* Factors with forcats
-* Dates and Time with lubridate
 
 **[10 Exploratory-Data-Analysis](https://github.com/soltaniehha/R-Bootcamp/blob/master/notebooks/10-Exploratory-Data-Analysis.ipynb)**
 
