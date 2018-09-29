@@ -2,6 +2,7 @@
 
 **STABLE Version:** [bit.ly/rBootcampBinder2](http://bit.ly/rBootcampBinder2) [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/soltaniehha/R-Bootcamp/eaa5faddbf863b6426f2b73bbd8a1b2f92bef6b4)
 
+
 # R-Bootcamp
 
 Learn essential R programming!  Complement this with knowledge of some of the most popular libraries in data analysis and data visualization.  Apply these skills to a several in-demand applications.  No prior programming experience required.
