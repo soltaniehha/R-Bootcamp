@@ -43,7 +43,3 @@ rsconnect/
 
 # Temporary files created in the course
 tmp/**
-
-# Not track solutions
-solutions/*.ipynb
-solutions/*.html

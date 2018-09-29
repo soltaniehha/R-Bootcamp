@@ -1,6 +1,6 @@
 **LATEST Version:** [bit.ly/rBootcampBinder](http://bit.ly/rBootcampBinder) [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/soltaniehha/R-Bootcamp/master)
 
-**STABLE Version:** [bit.ly/rBootcampBinder2](http://bit.ly/rBootcampBinder2) [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/soltaniehha/R-Bootcamp/9f2bb12c4382154aa46b328e7ffff1f62ec08321)
+**STABLE Version:** [bit.ly/rBootcampBinder2](http://bit.ly/rBootcampBinder2) [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/soltaniehha/R-Bootcamp/eaa5faddbf863b6426f2b73bbd8a1b2f92bef6b4)
 
 # R-Bootcamp
 
