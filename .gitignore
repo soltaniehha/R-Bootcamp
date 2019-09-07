@@ -1,6 +1,7 @@
 *-Solution*
 /sandbox/*
 !/sandbox/png
+tmp
 
 # History files
 .Rhistory
