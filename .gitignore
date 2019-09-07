@@ -1,3 +1,7 @@
+*-Solution*
+/sandbox/*
+!/sandbox/png
+
 # History files
 .Rhistory
 .Rapp.history
@@ -40,6 +44,3 @@ rsconnect/
 # Jupyter notebook
 .ipynb_checkpoints
 .Rproj.user
-
-# Temporary files created in the course
-tmp/**
