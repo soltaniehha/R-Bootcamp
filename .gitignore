@@ -2,6 +2,7 @@
 /sandbox/*
 !/sandbox/png
 tmp
+Assignment-1.Rmd
 
 # History files
 .Rhistory
