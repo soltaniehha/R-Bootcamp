@@ -1,0 +1,411 @@
+---
+title: "Coding Basics"
+output: html_notebook
+---
+
+### Table of Contents
+* Functions
+* Conditionals
+* cut()
+* stop()
+* return()
+* ifelse()
+
+```{r echo=FALSE}
+# loading libraries
+library(tidyverse)
+library(lubridate)  # lubridate is not part of core tidyverse, so has to be loaded separately.
+
+# modifying chart size
+options(repr.plot.width=5, repr.plot.height=3)
+```
+
+
+## Functions
+One of the best ways to improve your code readability is to write functions. Functions allow you to automate common tasks in a more powerful and general way than copy-and-pasting. Writing a function has three big advantages over using copy-and-paste:
+
+1. You can give a function an evocative name that makes your code easier to understand.
+
+2. As requirements change, you only need to update code in one place, instead of many.
+
+3. You eliminate the chance of making incidental mistakes when you copy and paste (i.e. updating a variable name in one place, but not in another).
+
+General template of a function:
+
+```{r eval=FALSE}
+MyFunction <- function(arg1, arg2, ... ){
+    statements
+    return(object)
+}
+```
+
+Example: The following function adds a and b and return it:
+
+```{r}
+AddFunction <- function(a, b) {
+    a + b
+}
+```
+
+```{r}
+AddFunction(3, 2)
+```
+
+### When should you write a function?
+You should consider writing a function whenever you've copied and pasted a block of code more than twice (i.e. you now have three copies of the same code). For example, take a look at this code. What does it do?
+
+```{r}
+df <- tibble::tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+
+df$a <- (df$a - min(df$a, na.rm = TRUE)) / 
+  (max(df$a, na.rm = TRUE) - min(df$a, na.rm = TRUE))
+df$b <- (df$b - min(df$b, na.rm = TRUE)) / 
+  (max(df$b, na.rm = TRUE) - min(df$a, na.rm = TRUE))
+df$c <- (df$c - min(df$c, na.rm = TRUE)) / 
+  (max(df$c, na.rm = TRUE) - min(df$c, na.rm = TRUE))
+df$d <- (df$d - min(df$d, na.rm = TRUE)) / 
+  (max(df$d, na.rm = TRUE) - min(df$d, na.rm = TRUE))
+df
+```
+
+You might be able to puzzle out that this rescales each column to have a range from 0 to 1. But did you spot the mistake? I made an error when copying-and-pasting the code for `df$b`: I forgot to change an `a` to a `b`. Extracting repeated code out into a function is a good idea because it prevents you from making this type of mistake.
+
+We are rescaling each column individually, we could write a function that just does that and we call it whenever we are rescaling a vector:
+
+```{r}
+Rescale <- function(x) {
+  # Rescales each column to a range from 0 to 1
+  #
+  # Args:
+  #   x: the vector that is being rescaled.
+  #
+  # Returns:
+  #   The new rescaled vector.
+
+  min <- min(x, na.rm = TRUE)
+  max <- max(x, na.rm = TRUE)
+  (x - min) / (max - min)
+}
+```
+
+```{r}
+x  <- c(0, 50, 100)
+Rescale(x)
+```
+
+We can simplify the original example now that we have a function:
+
+```{r}
+df$a <- Rescale(df$a)
+df$b <- Rescale(df$b)
+df$c <- Rescale(df$c)
+df$d <- Rescale(df$d)
+df
+```
+
+Compared to the original, this code is easier to understand and we've eliminated one class of copy-and-paste errors. There is still quite a bit of duplication since we're doing the same thing to multiple columns. We'll learn how to eliminate that duplication in iteration.
+
+### Exercise 1
+What do these functions do?
+
+```{r}
+f1 <- function(string, prefix) {
+  substr(string, 1, nchar(prefix)) == prefix
+}
+```
+
+```{r}
+# Your answer goes here
+```
+
+```{r}
+f2 <- function(x) {
+  if (length(x) <= 1) return(NULL)
+  x[-length(x)]
+}
+```
+
+```{r}
+# Your answer goes here
+```
+
+```{r}
+f3 <- function(x, y) {
+  rep(y, length.out = length(x))
+}
+```
+
+```{r}
+# Your answer goes here
+```
+
+### Exercise 2
+Write a function that takes a dataframe, `x`, `y`, and a selected color and returns a scatterplot with the given color.
+
+```{r}
+# Your answer goes here
+```
+
+## Function arguments
+Generally, data arguments should come first. Detail arguments should go on the end, and usually should have default values. We specify a default argument by giving it a default value in the function definition using `=`.
+
+For example, lets modify our `AddFunction()` so that it adds 1 to `a` if `b` is not provided: 
+
+```{r}
+AddFunction <- function(a, b = 1) {
+    return(a + b)
+}
+```
+
+```{r}
+AddFunction(8)
+```
+
+```{r}
+AddFunction(5, 10)  # It still does what we expect it to do when both arguments are available
+```
+
+The default value should almost always be the most common value. Except for safety reasons.
+
+### Choosing names
+The names of the arguments are also important. R doesn't care, but the readers of your code (including future-you!) does. Generally, you should prefer longer, more descriptive names, but there are a handful of very common, very short names. It's worth memorizing these:
+
+`x`, `y`, `z`: vectors.
+
+`w`: a vector of weights.
+
+`df`: a data frame.
+
+`i`, `j`: numeric indices (typically rows and columns).
+
+`n`: length, or number of rows.
+
+`p`: number of columns.
+
+Otherwise, consider matching names of arguments in existing R functions. For example, use `na.rm` to determine if missing values should be removed.
+
+---
+
+## Conditionals
+An `if` statement allows you to conditionally execute code. It looks like this:
+
+```
+if (condition) {
+    code executed when condition is TRUE
+} else {
+    code executed when condition is FALSE
+}
+```
+
+```{r}
+condition = TRUE
+if (condition) {
+  print("Condition is TRUE")
+} else {
+  print("Condition is FALSE")
+}
+```
+
+The condition must evaluate to either `TRUE` or `FALSE`.
+
+You can use `||` (or) and `&&` (and) to combine multiple logical expressions.
+
+You can chain multiple if statements together:
+
+```
+if (this) {
+  do that
+} else if (that) {
+  do something else
+} else {
+  do something else 
+}
+```
+
+---
+
+### Exercise 3
+Write a greeting if statement that says "good morning", "good afternoon", or "good evening", depending on the time of day. (Hint: use lubridate's `now()` function to get the current time, and by `hour()` extract the hour of day).
+
+```{r}
+# Your answer goes here
+```
+
+---
+
+### Exercise 4
+Implement an if statement: It receives an integer `number`. If our `number` is divisible by 3, it prints "fizz". If it's divisible by 5 it print "buzz". If it's divisible by 3 and 5, it prints "fizzbuzz". Otherwise, it returns the number.
+
+(Hint: `x%%y` gives the remainder of `x` divided by `y`)
+
+```{r}
+# Your answer goes here
+```
+
+---
+
+### stop()
+**Checking function input arguments**
+
+It's good practice to check important preconditions, and throw an error (with `stop()`), if they are not true:
+
+For example we have this function that gives us `TRUE` if input is an even number and `FALSE` if it's an odd integer:
+
+```{r}
+IsEven <- function(a) {
+    if (a %% 2 == 0) {
+        return(TRUE)
+    } else {
+        return(FALSE)
+    }
+}
+```
+
+```{r}
+IsEven(4)
+IsEven(5)
+```
+
+Now what happens if we give a non-integer input?
+
+```{r}
+IsEven(4.4)
+```
+
+4.4 is not an off number! In fact it's not an integer, so we shouldn't have done the test. Let's add a `stop()` and check first to see if the input is an integer:
+
+```{r}
+IsEven <- function(a) {
+    
+    if (a %% 1 != 0) {
+    stop("a must be an integer!")
+    }
+    
+    if (a %% 2 == 0) {
+        return(TRUE)
+    } else {
+        return(FALSE)
+    }
+}
+```
+
+```{r}
+#IsEven(4.4)  # Should return an error now
+```
+
+
+### return()
+
+**Explicit return statements**
+
+The value returned by the function is usually the last statement it evaluates, but you can choose to return early by using `return()`. It's best to save the use of `return()` to signal that you can return early with a simpler solution. A common reason to do this is because the inputs are empty:
+
+```{r}
+ComplicatedFunction <- function(x, y, z) {
+  if (length(x) == 0 || length(y) == 0) {
+    return(0)
+  }
+    
+  # Complicated code here
+}
+```
+
+Another reason is because you have an if statement with one complex block and one simple block
+
+```{r}
+f <- function() {
+  if (x) {
+    # Do 
+    # something
+    # that
+    # takes
+    # many
+    # lines
+    # to
+    # express
+  } else {
+    # return something short
+  }
+}
+```
+
+But if the first block is very long, by the time you get to the else, you've forgotten the condition. One way to rewrite it is to use an early return for the simple case:
+
+```{r}
+f <- function() {
+  if (!x) {
+    return(something_short)
+  }
+
+  # Do 
+  # something
+  # that
+  # takes
+  # many
+  # lines
+  # to
+  # express
+}
+```
+
+## ifelse()
+
+`ifelse(test_expression, yes, no)` returns a value with the same shape as `test_expression` which is filled with elements selected from either `yes` or `no` depending on whether the element of `test_expression` is `TRUE` or `FALSE`.
+
+Example:
+
+```{r}
+number = 4
+ifelse(number %% 2 == 0, "even", "odd")
+```
+
+```{r}
+x <- c(6:-4)
+ifelse(x >= 0, x, NA)
+```
+
+```{r}
+(a <- matrix(1:9, 3, 3))
+```
+
+```{r}
+ifelse(a %% 2 == 0, a, 0)
+```
+
+## Function documentation
+Functions should contain a comments section immediately below the function definition line. These comments should consist of a one-sentence description of the function; a list of the function's arguments, denoted by `Args:`, with a description of each (including the data type); and a description of the return value, denoted by `Returns:`. The comments should be descriptive enough that a caller can use the function without reading any of the function's code. Example:
+
+```{r}
+CalculateSampleCovariance <- function(x, y, verbose = TRUE) {
+  # Computes the sample covariance between two vectors.
+  #
+  # Args:
+  #   x: One of two vectors whose sample covariance is to be calculated.
+  #   y: The other vector. x and y must have the same length, greater than one,
+  #      with no missing values.
+  #   verbose: If TRUE, prints sample covariance; if not, not. Default is TRUE.
+  #
+  # Returns:
+  #   The sample covariance between x and y.
+  
+  n <- length(x)
+    
+  # Error handling
+  if (n <= 1 || n != length(y)) {
+    stop("Arguments x and y have different lengths: ",
+         length(x), " and ", length(y), ".")
+  }
+  if (TRUE %in% is.na(x) || TRUE %in% is.na(y)) {
+    stop(" Arguments x and y must not have missing values.")
+  }
+  covariance <- var(x, y)
+  if (verbose)
+    cat("Covariance = ", round(covariance, 4), ".\n", sep = "")
+  return(covariance)
+}
+```
