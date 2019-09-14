@@ -1,0 +1,854 @@
+---
+title: "Coding Basics"
+output: html_notebook
+---
+
+### Table of Contents
+* R as a calculator
+* Calling functions
+* Commenting
+* Common data types in R
+* Common data structures in R
+* Mathematical Operations
+* Comparison operators
+* Tibbles
+
+```{r echo=FALSE}
+# loading libraries
+library(tidyverse)
+
+# modifying chart size
+options(repr.plot.width=5, repr.plot.height=3)
+```
+
+## R as a calculator 
+
+```{r}
+8 * 7
+```
+
+```{r}
+10 / 5 + 5
+```
+
+```{r}
+10 / (5 + 5)
+```
+
+```{r}
+pi
+```
+
+```{r}
+sin(pi/6)
+```
+
+## Create new objects by "`<-`"
+
+```{r}
+x <- 4
+```
+
+```{r}
+x
+```
+
+All R statements where you create objects, assignment statements, have the same form:
+
+`myObject <- value`
+
+When reading that code say "myObject gets value" in your head.
+
+Shortcut: **Alt** + **-** results in ` <- `
+
+## Calling functions
+R has a large collection of built-in functions that are called like this:
+
+```FunctionName(arg1 = val1, arg2 = val2, ...)```
+
+```{r}
+seq(1, 100)
+```
+
+```{r}
+#?seq
+```
+
+```{r}
+seq(0, 100, length.out = 5)
+```
+
+```{r}
+seq(0, 100, by = 10)
+```
+
+```{r}
+myList <- seq(0, 100, by = 10)
+```
+
+```{r}
+myList
+```
+
+```{r}
+(myList <- seq(0, 100, by = 10))
+```
+
+```{r}
+myChar <- "hello world"
+```
+
+```{r}
+myChar
+```
+
+Now look at your RStudio environment in the upper right pane:
+
+<center> ![](../png/rstudio_glb_env.png){width=400} </center>
+
+--- 
+
+### Exercise 1
+Tweak each of the following R commands so that they run correctly:
+
+```
+ggplot(dota = mpg) 
+  + geom_point(mapping = aes(x = displ, y = hwy))
+
+fliter(mpg, cyl = 8)
+
+filter(diamond, carat > 3)
+```
+
+---
+
+In RStudio press Alt + Shift + K to get all the shortcuts.
+
+
+### Commenting along the code
+Use "#" followed by a space and your comment. R won't read anything after "#"
+
+```{r}
+# This is a comment. It's a good practice to leave a space after the pound sign for redability
+```
+
+One can also leave a comment after the code in the same line. A good practice is to leave 2 spaces after the code, hash tag, a single space, and then comment. E.g.:
+
+```{r}
+accountBalance <- 100
+accountBalance <- accountBalance + 500  # adding 500 to accountBalance
+accountBalance
+```
+
+## Common data types in R
+There are several data types associated with objects in R. We can identify the class of data types in these objects by `class()` function. Everything in R is an object, so we can use `class()` on any object.
+
+* Numeric
+* Integer
+* Logical (boolean)
+* Character
+
+### Numeric
+Decimal objects
+
+Note: If integers are not explicitly declared as integers they will be considered in numeric class as well.
+
+```{r}
+x1 <- 2.2
+class(x1)
+```
+
+```{r}
+x2 <- 2
+class(x2)
+```
+
+```{r}
+is.integer(x2)
+```
+
+### Integer
+To work with integer class we can use `as.integer()` to explicitly set an integer class:
+
+```{r}
+y1 <- as.integer(2)
+class(y1)
+```
+
+```{r}
+is.integer(y1)
+```
+
+One could also use `L` notation:
+
+```{r}
+y2 <- 3L
+print(y2)
+class(y2)
+```
+
+### Logical (boolean)
+
+```{r}
+a <- TRUE
+a
+```
+
+```{r}
+T
+```
+
+```{r}
+b <- FALSE
+b
+```
+
+```{r}
+F
+```
+
+```{r}
+class(b)
+```
+
+### Characters
+We can use double quotes or single quotes to define characters
+
+```{r}
+myChar <- "hello world"
+myChar
+```
+
+```{r}
+class(myChar)
+```
+
+## Common data structures in R
+
+
+| Dimension | Homogeneous | Heterogeneous |
+|:---|:---|:---|
+| 1d | Atomic Vector | List |
+| 2d | Matrix | Data frame |
+| nd | Array | - | 
+
+### Atomic Vector
+There are four common types of atomic vectors that we will discuss here: numeric (aka double), integer, character, and logical. As you can tell we are familiar with all these types. Vectors in R are collections of data types, all the elements of a vector have the same type.
+
+Atomic vectors are typically created with c(), short for combine:
+
+```{r}
+numVec <- c(0.01, 5, 90)
+numVec
+class(numVec)
+```
+
+```{r}
+intVec <- c(1L, 5L, 9L)
+intVec
+class(intVec)
+```
+
+```{r}
+charVec <- c("a", "b", "abc-xyz")
+charVec
+class(charVec)
+```
+
+```{r}
+boolVec <- c(T, F, FALSE, TRUE)
+boolVec
+class(boolVec)
+```
+
+We can use `length()` on any of these vectors to get their length:
+
+```{r}
+length(numVec)
+```
+
+```{r}
+length(boolVec)
+```
+
+Check the type of a vector with "is" functions: `is.character()`, `is.numeric()`, `is.integer()`, `is.logical()`, or, more generally, `is.atomic()`:
+
+```{r}
+is.numeric(numVec)
+```
+
+```{r}
+is.atomic(numVec)
+```
+
+```{r}
+is.character(numVec)
+```
+
+#### Coercion
+If you try to combine different data types together by `c()`, R will automatically coerce:
+
+```{r}
+c('foo', 'bar', 4)
+```
+
+```{r}
+c(TRUE, 3, FALSE)
+```
+
+Note: You will usually get a warning message if the coercion might lose information. If confusion is likely, explicitly coerce with `as.character()`, `as.double()`, `as.integer()`, or `as.logical()`.
+
+```{r}
+as.integer(c(1.2, 5, 9.0))
+```
+
+
+#### Missing values
+Missing values are noted with NA:
+
+```{r}
+c(1, NA, 8)
+```
+
+## List
+Lists are similar to vectors with the major difference that their elements can contain any types, including lists. We make them by `list()`:
+
+```{r}
+myList <- list(5, "Sample character element", TRUE, c(2.71, 3.14), list("a", 6))
+myList
+```
+
+You can use function `str()` to compactly display the internal **str**ucture of an R object:
+
+```{r}
+str(myList)
+```
+
+```{r}
+class(myList)
+```
+
+Accessing elements in a list:
+
+```{r}
+myList[[4]]
+```
+
+```{r}
+myList[[4]][[2]]
+```
+
+```{r}
+myList[[5]]
+```
+
+```{r}
+myList[[5]][[1]]
+```
+
+#### Names
+Elements of a vector can have names. These names can be set in the creation of the vector or later by `names()`:
+
+```{r}
+x <- 1:3
+x
+```
+
+```{r}
+names(x)
+```
+
+```{r}
+names(x) <- c('a', 'b', 'c')
+```
+
+```{r}
+x
+```
+
+```{r}
+names(x)
+```
+
+While creation:
+
+```{r}
+x <- c(a = 1, b = 2, c = 3)
+x
+```
+
+```{r}
+highTemps <- c(96, 88, 94, 78, 85, 90, 72)
+highTemps
+days <- c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+names(highTemps) <- days
+highTemps
+```
+
+```{r}
+highTemps['Mon']  # accessing the element and its name by calling its name
+```
+
+```{r}
+highTemps[['Mon']]
+```
+
+### Factors
+Factors are a type of vector that contain only predefined values. It is used to store categorical data. For example:
+
+```{r}
+genderVec <- c('f', 'f', 'm', 'f', 'm')
+genderVec
+```
+
+```{r}
+(gender <- factor(genderVec, levels = c('m', 'f')))
+```
+
+```{r}
+# modifying an element
+gender[1] <- 'm'
+gender
+```
+
+factors won't allow a modification that is not a part of `levels`
+```{r}
+gender[2] <- 'x'
+gender
+```
+
+```{r}
+# checking the levels
+levels(gender)
+```
+
+# Matrix and Array
+Matrices are a special case of a multi-dimensional array, with 2d. 
+
+```{r}
+a <- matrix(1:9, ncol = 3, nrow = 3)
+a
+```
+
+```{r}
+b <- matrix(1:9, ncol = 3, nrow = 3, byrow = TRUE)
+b
+```
+
+```{r}
+c <- array(1:12, c(2, 3, 2))
+c 
+```
+
+Note that a 2d array is a matrix
+```{r}
+array(1:9, c(3, 3))
+```
+
+```{r}
+class(array(1:9, c(3, 3))) 
+```
+
+Naming columns and rows:
+
+```{r}
+mat <- matrix(1:6, 
+              nrow = 2, ncol = 3, 
+              dimnames = list(c("ROW1", "ROW2"),
+                              c("COL1", "COL2", "COL3")))
+mat
+```
+
+Accessing matrix elements:
+
+```{r}
+mat[1, ]
+```
+
+```{r}
+mat[, 1]
+```
+
+```{r}
+mat[, 'COL2']
+```
+
+Manipulating matrix elements:
+
+```{r}
+mat[1,2] <- 40
+mat
+```
+
+```{r}
+# dimensions
+dim(mat)
+```
+
+```{r}
+nrow(mat)
+```
+
+```{r}
+ncol(mat)
+```
+
+```{r}
+rownames(mat)
+```
+
+```{r}
+colnames(mat)
+```
+
+```{r}
+dimnames(mat)
+```
+
+```{r}
+# manipulating the names
+dimnames(mat) <- list(c('A', 'B'), c('X', 'Y', 'Z'))
+mat
+```
+
+```{r}
+# To transpose a matrix
+t(mat)
+```
+
+### Data frame
+A data frame is the most common way of storing data in R. Under the hood, a data frame is a list of equal-length vectors, so it is a 2-dimensional data structure.
+
+A data frame has attributes such as `colnames()`, `rownames()`, `ncol()`, `nrow()`, `str()`
+
+```{r}
+df <- data.frame(x = 1:3, 
+                 y = c(TRUE, FALSE, TRUE), 
+                 z = c("a", "b", "c"))
+df
+```
+
+```{r}
+str(df)
+```
+
+```{r}
+glimpse(df)
+```
+
+Character variables passed to `data.frame` are converted to factor columns unless specified by `stringsAsFactors = FALSE`:
+
+```{r}
+df <- data.frame(x = 1:3, y = c(TRUE, FALSE, TRUE), z = c("a", "b", "c"), stringsAsFactors = FALSE)
+str(df)
+```
+
+**Slicing and indexing** 
+Getting a subset of a `data.frame`
+
+```{r}
+df$y  # column y
+```
+
+```{r}
+df[1]  # first column, a data.frame subset
+```
+
+```{r}
+df[[1]]  # returns the first column as a vector
+```
+
+```{r}
+df[2,]  # 2nd row
+```
+
+```{r}
+df[2,3]  # 2nd row, 3rd column element
+```
+
+```{r}
+df[c(2,3), c(1,2)]  # intersection of 2nd and 3rd rows with 1st and 2rd columns
+```
+
+Subsetting vectors:
+
+```{r}
+v1 <- 10:20
+names(v1) <- letters[1:11]
+v1
+```
+
+```{r}
+v1[1]
+```
+
+```{r}
+v1[[1]]
+```
+
+```{r}
+v1[5:8]
+```
+
+```{r}
+v1[c(1,3)]
+```
+
+#### Combining data frames
+`cbind()` and `rbind()` can be used to combine two or more `data.frame`s, by column and row respectively.
+
+```{r}
+m <- cbind(1, 1:5)  # the '1' (= shorter vector) is recycled
+m
+```
+
+```{r}
+cbind(m, 6:10)  # insert a column
+```
+
+```{r}
+df1 <- data.frame(series = 1, Letter = letters[1:3], number = 1:3)
+df1
+df2 <- data.frame(series = 2, Letter = LETTERS[4:6], number = 10:12)
+df2
+rbind(df1, df2)
+```
+
+Note: In order for this to work all the column names should match. We will see how to merge data.frames if the names don't match in the future notebooks.
+
+Non-matching names result in error:
+
+```{r}
+df1 <- data.frame(A = 1, number = 1:3)
+df2 <- data.frame(B = 2, number = 10:12)
+#rbind(df1, df2)
+```
+> Error in match.names(clabs, names(xi)) : names do not match previous names
+
+## Mathematical Operations
+
+```{r}
+v1 <- c(1, 2, 5)
+v2 <- c(3, 4, 2)
+v1 + v2
+```
+
+```{r}
+v1 * v2
+```
+
+```{r}
+v1 / v2
+```
+
+```{r}
+10 * v1
+```
+
+```{r}
+sum(v2)
+```
+
+```{r}
+mean(v1)
+```
+
+```{r}
+prod(v1)
+```
+
+---
+
+```{r}
+mat <- matrix(1:9, byrow = T, ncol = 3)
+mat
+```
+
+```{r}
+mat * 2
+```
+
+```{r}
+mat + 10
+```
+
+```{r}
+colSums(mat)
+```
+
+```{r}
+rowSums(mat)
+```
+
+```{r}
+rowMeans(mat)
+```
+
+## Comparison operators
+
+```{r}
+2 > 1
+```
+
+```{r}
+10 == 10
+```
+
+```{r}
+4 >= 5
+```
+
+```{r}
+x = 12
+y = 10
+
+x != y  # checks if x is not equial to y. If not equal then returns TRUE!
+```
+
+```{r}
+v1 <- 10:20
+names(v1) <- letters[1:11]
+v1
+```
+
+```{r}
+v1 > 15  # returns a logical vector
+```
+
+```{r}
+# Filtering elements that are greater than 15
+v1[v1 > 15]
+```
+
+---
+
+### Exercise 2
+Stock price matrix - follow the steps outlined below to create a matrix with some mocked data. Assume the closing price for each day of the week for these companies are given as below:
+
+| Comp/Day | Mon | Tue | Wed | Thu | Fri |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| GOOG | 1205 | 1248 | 1263 | 1268 | 1238 |
+| AMZN | 1802 | 1829 | 1863 | 1808 | 1817 |
+
+For each company create a vector that contains all the values for that company. Use the symbol as names for these vectors
+
+```{r}
+# your code goes here
+```
+
+Create a vector containing weekdays, call it `days`
+
+```{r}
+# your code goes here
+```
+
+Assign `days` vector as names to all the vectors you created earlier
+
+```{r}
+# your code goes here
+```
+
+Now using `rbind()` combine these two vectors into a matrix and call it stocksPrices
+
+```{r}
+# your code goes here
+```
+
+We just got FB data for those days, let's add this to our matrix
+
+| Comp/Day | Mon | Tue | Wed | Thu | Fri |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| FB   | 210 | 214 | 217 | 176 | 174 |
+
+```{r}
+# your code goes here
+```
+
+Your matrix should look something similar to 
+
+| Comp/Day | Mon | Tue | Wed | Thu | Fri |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| GOOG | 1205 | 1248 | 1263 | 1268 | 1238 |
+| AMZN | 1802 | 1829 | 1863 | 1808 | 1817 |
+| FB   | 210 | 214 | 217 | 176 | 174 |
+
+Let's add a new column to this matrix to capture the average value of stocks for the week for each company. Use the function `rowMeans()` to calculate the average value of each row, call this new column `average`
+
+```{r}
+# your code goes here
+```
+
+You can access an entire column by `stocksPrices[,<COLUMN NUMBER or NAME>]`. Print the slice of data for `Mon` and `Fri` separately. Then create a new column called `percentageGain` and using those slices calculate and populate week's gains (in percentage) for these companies
+
+```{r}
+# your code goes here
+```
+
+---
+
+## Tibbles
+Tibbles are basically refined data frames, but they tweak some older behaviors to make life a little easier.
+
+**tibble** is one of the libraries that come with tidyverse. In order to use its functionalities you can load either one of these packages.
+
+Some of the features of tibble:
+
+* Tibbles have clean printing method that shows only the first 10 rows and all the columns that fit on the screen
+* When printed, the data type of each column is specified
+* Subsetting a tibble will always return a tibble
+
+To convert a `data.frame` to tibble use `as_tibble()`:
+
+```{r}
+as_tibble(iris)
+```
+
+You can create a new tibble from individual vectors with `tibble()`:
+
+```{r}
+myTibble <- tibble(x = 1, 
+                   y = 1:5, 
+                   z = y ^ 2 + x
+                  )
+
+myTibble
+```
+
+The `mpg` dataset from ggplot2 that we worked before is a tibble, like all other datasets that come with tidyverse.
+```{r}
+mpg
+```
+
+This is what class() function will output for a traditional data.frame:
+```{r}
+class(mtcars)
+```
+
+```{r}
+class(ggplot2::mpg)  # And this is what it'll show for a tibble data.frame
+```
+
+In the examples below you can compare the behavior of a data.frame right next to its corresponding tibble:
+
+```{r}
+df <- data.frame(abc = 1, xyz = "a")
+df$xyz
+df[, "xyz"]
+df[, c("abc", "xyz")]
+```
+
+```{r}
+df <- tibble(abc = 1, xyz = "a")
+df$xyz
+df[, "xyz"]
+df[, c("abc", "xyz")]
+```
+
+---
+
+### Exercise 3
+If you have the name of a variable stored in an object, e.g. `var <- "hwy"`, how can you extract the reference variable from a tibble?
+
+```{r}
+# Your answer goes here
+```
