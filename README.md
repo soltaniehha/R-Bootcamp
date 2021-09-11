@@ -1,6 +1,8 @@
 # R-Bootcamp
 
-Learn essential R programming!  Complement this with knowledge of some of the most popular libraries in data analysis and data visualization.  Apply these skills to a several in-demand applications.  No prior programming experience required.
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/soltaniehha/R-Bootcamp/HEAD?urlpath=rstudio)
+
+Learn essentials of R programming! Complement this with knowledge of some of the most popular libraries in data analytics and data visualization.  Apply these skills to several in-demand applications.  No prior programming experience required.
 
 In this bootcamp you will learn the core elements of the R programming language.  With this under your belt, we will complement it with a few more advanced libraries and capabilities. We will cover variables, data types and data structures, data frames, conditionals and loops, and functions.  We will also cover reading and writing CSV files, and the core APIs in analysis and visualization.  You will be introduced to the most popular libraries for data analysis in R, such as dplyr, ggplot2, readr,and rmarkdown. These packages will facilitate workflow and enhance the basic R functionalities; using them, one can effortlessly clean up a dataset, create elaborate plots, analyze and summarize the data, and produce presentable reports. At the end of the module, you solidify your new skills by applying the concepts you have learned to the analysis of several datasets. You will be given the opportunity to live-code during the sessions and troubleshoot your code with your classmates and the instructor. You will walk out of this bootcamp with newly-forged R coding skills, knowledge of several of the important R libraries and tools, and have resources in hand for learning more.
 
