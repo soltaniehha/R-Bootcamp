@@ -208,7 +208,7 @@ ggplotly(bar_plot)  # Same plot with ggplotly()
 
 # Additional Recourses
 * Examples of elaborate charts: [Top 50 ggplot2 Visualizations](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
-* To go beyond ggplot2 functionalities check out these extensions: [ggplot2 extensions](http://www.ggplot2-exts.org/gallery/)
+* To go beyond ggplot2 functionalities check out these extensions: [ggplot2 extensions](https://exts.ggplot2.tidyverse.org/gallery/)
 * *ggplot2-cheatsheet.pdf* in the cheatsheets directory
 * Hex color
     * Simply google "hex color picker" and use Google's tool
