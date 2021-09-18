@@ -82,7 +82,8 @@ p + blank_theme
 ## Template for layered grammar of graphics
 
 
-> ```ggplot(data = <DATA>) + 
+```{r, eval=F}
+ggplot(data = <DATA>) + 
   <GEOM_FUNCTION>(
      mapping = aes(<MAPPINGS>),
      stat = <STAT>, 
