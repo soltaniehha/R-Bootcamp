@@ -5,10 +5,12 @@ output: html_notebook
 ---
 
 ### Exercise 1
-Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like `"` or `'`. By convention, `read_csv()` assumes that the quoting character will be `"`, and if you want to change it, you'll need to use `read_delim()` instead. What arguments do you need to specify to read the following text into a data frame?
+Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like `"` or `'`. By convention, `read_csv()` assumes that the quoting character will be `"`. What arguments do you need to specify to read the following text into a data frame?
 
-> "x,y  
+```{r eval=F}
+"x,y  
 1,'a,b'"
+```
 
 ---
 
