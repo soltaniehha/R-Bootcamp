@@ -378,19 +378,19 @@ df2 <- tribble(
 The four possibilities are:
 
 ```{r}
-intersect(df1, df2)
+dplyr::intersect(df1, df2)
 ```
 
 ```{r}
-union(df1, df2)
+dplyr::union(df1, df2)
 ```
 
 note that union automatically filters the overlapping records, hence 3 rows!
 
 ```{r}
-setdiff(df1, df2)
+dplyr::setdiff(df1, df2)
 ```
 
 ```{r}
-setdiff(df2, df1)
+dplyr::setdiff(df2, df1)
 ```

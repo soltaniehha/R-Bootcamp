@@ -4,6 +4,7 @@ subtitle: "Part 1"
 output: html_notebook
 ---
 
+
 ### Table of Contents
 * Introduction
 * Pipes with magrittr
@@ -14,7 +15,7 @@ output: html_notebook
 * Arrange rows with arrange()
 * Select columns with select()
 
-```{r echo=FALSE}
+```{r include=FALSE}
 # loading libraries
 library(tidyverse)
 library(lubridate)
@@ -38,6 +39,7 @@ The pipe, `%>%`, comes from the **magrittr** package. Packages in the tidyverse 
 Pipe was designed to decrease development time and to improve readability of the code. magrittr provides a “pipe”-like operator, `%>%`, with which you may pipe a value forward into an expression or function call; something along the lines of `x %>% f`, rather than `f(x)`. 
 
 Example:
+
 
 ```{r}
 mpg %>% nrow

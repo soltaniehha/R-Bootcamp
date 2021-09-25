@@ -24,7 +24,7 @@ Add the location of the origin and destination (i.e. the `lat` and `lon`) to fli
 ---
 
 ### Exercise 3
-What happened on June 13 2013? Display the spatial pattern of delays, and then use Google to cross-reference with the weather.
+What happened on June 13 2013? Display the spatial pattern of delays, and then use a Google search to cross-reference with the weather.
 
 Hint: Use the following code as a template for creating a simple US map and annotate it with useful information. 
 
